@@ -1,0 +1,15 @@
+# Rojo build output
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+!assets/**
+
+# Studio lock files
+*.lock
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+sourcemap.json
