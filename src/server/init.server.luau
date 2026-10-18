@@ -19,6 +19,7 @@ local Wilderness = require(script.Wilderness)
 local Dungeon = require(script.Dungeon)
 local Forge = require(script.Forge)
 local Alchemy = require(script.Alchemy)
+local Travel = require(script.Travel)
 
 -- Terrain first, so everything else is built on finished islands.
 Islands.start()
@@ -39,6 +40,7 @@ Wilderness.start()
 Dungeon.start()
 Forge.start()
 Alchemy.start()
+Travel.start()
 -- Last: characters only spawn once the map and plots exist.
 Spawning.start()
 

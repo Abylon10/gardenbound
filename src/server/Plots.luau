@@ -284,6 +284,12 @@ function Plots.getPlot(player: Player): Model?
 	return ownerOf[player]
 end
 
+-- The plot's angle on the ring around the plaza (see MapLayout).
+function Plots.angle(plot: Model): number
+	local angle = plot:GetAttribute("Angle")
+	return if type(angle) == "number" then angle else 180
+end
+
 -- Where the player's character should stand when it spawns.
 function Plots.getSpawnPoint(player: Player): BasePart?
 	local plot = ownerOf[player]
@@ -313,7 +319,7 @@ function Plots.start()
 	plotsFolder.Parent = workspace
 
 	for i, angle in MapLayout.PLOT_ANGLES do
-		buildPlot(i, MapLayout.facingCenter(angle, MapLayout.PLOT_RING_RADIUS))
+		buildPlot(i, MapLayout.facingCenter(angle, MapLayout.PLOT_RING_RADIUS)):SetAttribute("Angle", angle)
 	end
 
 	Players.PlayerAdded:Connect(claimPlot)

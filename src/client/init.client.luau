@@ -9,8 +9,9 @@ local PlotPrompts = require(script.PlotPrompts)
 local SeedBar = require(script.SeedBar)
 local ShopMenu = require(script.ShopMenu)
 local Toasts = require(script.Toasts)
+local TravelButtons = require(script.TravelButtons)
 
-for _, system in { Toasts, PlotPrompts, SeedBar, ShopMenu, Inventory, PetsUI, GearUI, ForgeMenu, BrewMenu } do
+for _, system in { Toasts, PlotPrompts, SeedBar, ShopMenu, Inventory, PetsUI, GearUI, ForgeMenu, BrewMenu, TravelButtons } do
 	task.spawn(system.start)
 end
 
