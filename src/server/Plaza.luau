@@ -27,7 +27,7 @@ type ShopInfo = {
 local SHOPS: { ShopInfo } = {
 	{ key = "SeedShop", displayName = "Seed Shop", subtitle = "Seeds for your garden", color = Color3.fromRGB(70, 160, 80) },
 	{ key = "SellShop", displayName = "Sell Shop", subtitle = "Sell your crops", color = Color3.fromRGB(200, 60, 50) },
-	{ key = "GearShop", displayName = "Gear Shop", subtitle = "Coming soon", color = Color3.fromRGB(60, 100, 200) },
+	{ key = "GearShop", displayName = "Gear Shop", subtitle = "Forge and upgrade gear", color = Color3.fromRGB(60, 100, 200) },
 	{ key = "BlueprintShop", displayName = "Blueprint Shop", subtitle = "Coming soon", color = Color3.fromRGB(130, 80, 190) },
 }
 
@@ -125,9 +125,12 @@ local function buildStall(shop: ShopInfo, origin: CFrame): Model
 	end
 
 	-- Shops with a menu get an "OpenShop" prompt; the client opens the menu.
+	-- The Gear Shop opens the Forge menu instead.
 	if shop.key == "SellShop" then
 		Build.prompt(counter, "Sell all crops", "Sell Shop").Name = "Sell"
-	elseif shop.key ~= "GearShop" then
+	elseif shop.key == "GearShop" then
+		Build.prompt(counter, "Forge", "Gear Shop").Name = "OpenForge"
+	else
 		local prompt = Build.prompt(counter, "Browse", shop.displayName)
 		prompt.Name = "OpenShop"
 		prompt:SetAttribute("Shop", shop.key)

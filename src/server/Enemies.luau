@@ -14,6 +14,9 @@ local Build = require(script.Parent.Build)
 local TICK = 1 / 15
 local RESPAWN_DELAY = 10
 local ATTACK_REACH = 3
+-- Players more than this far above/below a zone's ground are ignored, so
+-- zones stacked at different heights (the mine) don't interact.
+local HEIGHT_TOLERANCE = 25
 
 export type Zone = {
 	name: string,
@@ -100,12 +103,64 @@ local function buildModel(kind: string): Model
 				Material = Enum.Material.Fabric,
 			})
 		end
+	elseif def.shape == "bat" then
+		body = add("Body", {
+			Shape = Enum.PartType.Ball,
+			Size = Vector3.new(size * 0.6, size * 0.6, size * 0.6),
+			CFrame = CFrame.new(0, size * 1.2, 0),
+			Color = def.color,
+			Material = Enum.Material.Fabric,
+		})
+		for _, x in { -1, 1 } do
+			add("Wing", {
+				Size = Vector3.new(size * 0.7, size * 0.08, size * 0.4),
+				CFrame = CFrame.new(x * size * 0.6, size * 1.3, 0) * CFrame.Angles(0, 0, math.rad(x * 20)),
+				Color = def.color,
+				Material = Enum.Material.Fabric,
+			})
+		end
+	elseif def.shape == "golem" then
+		body = add("Body", {
+			Size = Vector3.new(size * 0.8, size * 0.7, size * 0.5),
+			CFrame = CFrame.new(0, size * 0.55, 0),
+			Color = def.color,
+			Material = Enum.Material.Rock,
+		})
+		add("Head", {
+			Size = Vector3.new(size * 0.35, size * 0.3, size * 0.3),
+			CFrame = CFrame.new(0, size * 1.05, -size * 0.05),
+			Color = def.color,
+			Material = Enum.Material.Rock,
+		})
+		add("Core", {
+			Shape = Enum.PartType.Ball,
+			Size = Vector3.new(size * 0.2, size * 0.2, size * 0.2),
+			CFrame = CFrame.new(0, size * 0.6, -size * 0.25),
+			Color = Color3.fromRGB(255, 140, 50),
+			Material = Enum.Material.Neon,
+		})
+		for _, x in { -1, 1 } do
+			add("Arm", {
+				Size = Vector3.new(size * 0.22, size * 0.7, size * 0.25),
+				CFrame = CFrame.new(x * size * 0.52, size * 0.45, 0),
+				Color = def.color,
+				Material = Enum.Material.Rock,
+			})
+			add("Leg", {
+				Size = Vector3.new(size * 0.25, size * 0.25, size * 0.25),
+				CFrame = CFrame.new(x * size * 0.2, size * 0.12, 0),
+				Color = def.color,
+				Material = Enum.Material.Rock,
+			})
+		end
 	else
+		-- "goblin" and "skeleton": a small humanoid with a club or pickaxe.
+		local isSkeleton = def.shape == "skeleton"
 		body = add("Body", {
 			Size = Vector3.new(size * 0.6, size * 0.6, size * 0.4),
 			CFrame = CFrame.new(0, size * 0.45, 0),
-			Color = Color3.fromRGB(120, 85, 50),
-			Material = Enum.Material.Fabric,
+			Color = if isSkeleton then def.color else Color3.fromRGB(120, 85, 50),
+			Material = if isSkeleton then Enum.Material.SmoothPlastic else Enum.Material.Fabric,
 		})
 		add("Head", {
 			Shape = Enum.PartType.Ball,
@@ -114,11 +169,11 @@ local function buildModel(kind: string): Model
 			Color = def.color,
 			Material = Enum.Material.SmoothPlastic,
 		})
-		add("Club", {
+		add(if isSkeleton then "Pickaxe" else "Club", {
 			Size = Vector3.new(size * 0.12, size * 0.6, size * 0.12),
 			CFrame = CFrame.new(size * 0.4, size * 0.5, -size * 0.15) * CFrame.Angles(math.rad(-30), 0, 0),
-			Color = Color3.fromRGB(90, 60, 35),
-			Material = Enum.Material.Wood,
+			Color = if isSkeleton then Color3.fromRGB(150, 150, 160) else Color3.fromRGB(90, 60, 35),
+			Material = if isSkeleton then Enum.Material.Metal else Enum.Material.Wood,
 		})
 	end
 	-- Two eyes on the front (-Z).
@@ -168,7 +223,10 @@ end
 
 local function placeModel(enemy: Enemy, now: number)
 	local def = EnemyTypes[enemy.kind]
-	local hop = if def.shape == "slime" or def.shape == "rabbit" then math.abs(math.sin(now * 6)) * def.size * 0.25 else 0
+	local hop = if def.shape == "slime" or def.shape == "rabbit"
+		then math.abs(math.sin(now * 6)) * def.size * 0.25
+		elseif def.shape == "bat" then math.sin(now * 4) * def.size * 0.2
+		else 0
 	local position = Vector3.new(enemy.position.X, enemy.zone.groundY + enemy.pivotHeight + hop, enemy.position.Z)
 	local facing = Vector3.new(enemy.facing.X, 0, enemy.facing.Z)
 	if facing.Magnitude < 0.01 then
@@ -212,6 +270,7 @@ local function nearestTarget(enemy: Enemy): (Humanoid?, BasePart?)
 			-- Only chase players who are inside this zone.
 			local flat = Vector3.new(root.Position.X, 0, root.Position.Z)
 			local inZone = (flat - Vector3.new(enemy.zone.center.X, 0, enemy.zone.center.Z)).Magnitude <= enemy.zone.radius
+				and math.abs(root.Position.Y - enemy.zone.groundY) <= HEIGHT_TOLERANCE
 			local distance = (flat - Vector3.new(enemy.position.X, 0, enemy.position.Z)).Magnitude
 			if inZone and distance < bestDistance then
 				bestDistance = distance
@@ -278,7 +337,7 @@ end
 function Enemies.findInRange(position: Vector3, range: number): { Enemy }
 	local found = {}
 	for _, enemy in enemies do
-		if not enemy.dead then
+		if not enemy.dead and math.abs(position.Y - enemy.zone.groundY) <= HEIGHT_TOLERANCE then
 			local flat = Vector3.new(enemy.position.X - position.X, 0, enemy.position.Z - position.Z)
 			if flat.Magnitude <= range + EnemyTypes[enemy.kind].size / 2 then
 				table.insert(found, enemy)
@@ -314,7 +373,7 @@ function Enemies.damage(enemy: Enemy, amount: number, attacker: Player): boolean
 	for _, callback in killedCallbacks do
 		task.spawn(callback, attacker, enemy.kind, position)
 	end
-	task.delay(RESPAWN_DELAY, spawnEnemy, enemy.zone, enemy.kind)
+	task.delay(EnemyTypes[enemy.kind].respawn or RESPAWN_DELAY, spawnEnemy, enemy.zone, enemy.kind)
 	return true
 end
 

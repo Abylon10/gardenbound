@@ -61,6 +61,16 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   character, publishes `Pets`/`EquippedPets` JSON. Defs in `shared/Pets`.
 - `Wilderness`: the Meadow zone island beyond the Wilderness Gate
   (`MapLayout.ZONES`), its bridge, and its enemy zone.
+- `Dungeon`: the Abandoned Mine at (1600, -300, 0), Persistent; four
+  rooms with enemy zones and ore veins (`MineVein` prompts), entered
+  from the Dungeon Portal (`EnterMine`), exit portal `LeaveMine`.
+  Enemies ignore players more than 25 studs above/below their zone.
+- `Forge`: ForgeCraft/ForgeUpgrade (at the Gear Shop) and EquipGear;
+  armor is a Bonuses source. Gear stats/recipes in `shared/Gear`.
+- `Alchemy`: Brew (at your plot's `Cauldron`) and UsePotion; timed buffs
+  are a Bonuses source and set WalkSpeed. Recipes in `shared/Potions`.
+- `Teleport.to(player, cframe)` moves a character safely (holds it while
+  the destination streams in).
 - `Notify.send(player, text, kind)` shows a toast; `Remotes.event(name)`
   gets or creates a RemoteEvent.
 - Plot reset on leave: register with `Plots.onRelease`.
@@ -84,7 +94,9 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   `Blueprints`, `ShopCatalog`. Balance numbers live there.
 - Client UI: `UI` helpers, `Toasts`, `ShopMenu`, `Inventory` (Bag, tabs
   via `Inventory.addTab`, item buttons via `Inventory.addItemAction`),
-  `PetsUI`, `SeedBar` (crops + saplings), `PlotPrompts`.
+  `PetsUI`, `GearUI`, `ForgeMenu`, `BrewMenu` (+ potion Use button and
+  active-buff list), `Costs` (format/check costs), `SeedBar` (crops +
+  saplings), `PlotPrompts`.
 - Remotes live in `ReplicatedStorage.Remotes`, created by the server.
   Validate every remote argument on the server.
 

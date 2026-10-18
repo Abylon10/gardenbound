@@ -1,5 +1,8 @@
 -- Client entry point. Each UI/system is a ModuleScript next to this one.
 
+local BrewMenu = require(script.BrewMenu)
+local ForgeMenu = require(script.ForgeMenu)
+local GearUI = require(script.GearUI)
 local Inventory = require(script.Inventory)
 local PetsUI = require(script.PetsUI)
 local PlotPrompts = require(script.PlotPrompts)
@@ -7,7 +10,7 @@ local SeedBar = require(script.SeedBar)
 local ShopMenu = require(script.ShopMenu)
 local Toasts = require(script.Toasts)
 
-for _, system in { Toasts, PlotPrompts, SeedBar, ShopMenu, Inventory, PetsUI } do
+for _, system in { Toasts, PlotPrompts, SeedBar, ShopMenu, Inventory, PetsUI, GearUI, ForgeMenu, BrewMenu } do
 	task.spawn(system.start)
 end
 

@@ -51,6 +51,12 @@ Wilderness: cross the Wilderness Gate island to reach the Meadow. Click to
 swing your sword. Creatures drop coins, materials, and eggs. Hatch eggs from
 the Bag (Items tab) and equip pets in the Pets tab.
 
+Dungeon: walk into the purple Dungeon Portal (north) to enter the
+Abandoned Mine. Mine copper and iron veins, fight bats and skeleton miners,
+and beat the Rock Golem. Craft and upgrade gear at the Forge (Gear Shop) and
+equip it from the Bag's Gear tab. Brew potions at the cauldron by your house
+and drink them from the Bag.
+
 Saving needs **Game Settings → Security → Enable Studio Access to API
 Services** turned on (and the place published). Without it the game
 still runs, it just doesn't save.
