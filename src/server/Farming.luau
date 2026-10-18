@@ -2,6 +2,10 @@
 -- Driven by the soil-tile ProximityPrompts built in Plots, so the client
 -- only needs one remote: choosing which seed to plant. Buying and selling
 -- happen at the plaza shops (see Plaza).
+--
+-- Growth is based on real time: each planted tile is saved in PlayerData
+-- (garden[tileName] = { crop, plantedAt }), so crops keep growing while
+-- the player is away and are restored when they rejoin.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -11,11 +15,21 @@ local Crops = require(ReplicatedStorage.Shared.Crops)
 local PlayerData = require(script.Parent.PlayerData)
 local Plots = require(script.Parent.Plots)
 
-local GROWTH_STAGES = 4
 local MIN_CROP_SIZE = 1
 local MAX_CROP_SIZE = 5
+local SPROUT_COLOR = Color3.fromRGB(90, 200, 90)
 
 local Farming = {}
+
+-- Systems that change growth speed (pets, potions) set this. Returns a
+-- multiplier on grow time; 1 means normal speed.
+Farming.growthMultiplier = function(_player: Player): number
+	return 1
+end
+-- Systems that can give extra crops on harvest (pets) set this.
+Farming.harvestAmount = function(_player: Player, _cropName: string): number
+	return 1
+end
 
 local nextPlantId = 0
 
@@ -42,27 +56,21 @@ local function setCropSize(tile: BasePart, cropPart: BasePart, progress: number)
 	cropPart.CFrame = tile.CFrame * CFrame.new(0, tile.Size.Y / 2 + size / 2, 0)
 end
 
-local function plant(player: Player, tile: BasePart)
-	local cropName = player:GetAttribute("SelectedSeed")
-	local crop = if type(cropName) == "string" then Crops[cropName] else nil
-	if not crop then
-		return
-	end
-	if not PlayerData.takeSeed(player, cropName) then
-		return
-	end
-
+-- Shows a crop on the tile and grows it until ready. plantedAt is os.time().
+local function startGrowing(owner: Player, tile: BasePart, cropName: string, plantedAt: number)
+	local crop = Crops[cropName]
 	nextPlantId += 1
 	local plantId = nextPlantId
 	tile:SetAttribute("Crop", cropName)
 	tile:SetAttribute("PlantId", plantId)
+	tile:SetAttribute("Ready", nil)
 
 	local cropPart = Instance.new("Part")
 	cropPart.Name = "Crop"
 	cropPart.Shape = Enum.PartType.Ball
 	cropPart.Anchored = true
 	cropPart.CanCollide = false
-	cropPart.Color = Color3.fromRGB(90, 200, 90)
+	cropPart.Color = SPROUT_COLOR
 	cropPart.Material = Enum.Material.SmoothPlastic
 	setCropSize(tile, cropPart, 0)
 	cropPart.Parent = tile
@@ -71,27 +79,46 @@ local function plant(player: Player, tile: BasePart)
 	prompt.ActionText = "Growing..."
 	prompt.ObjectText = crop.displayName
 
-	-- Grow in stages; stop if the tile was cleared or replanted meanwhile.
+	-- Stop if the tile was cleared or replanted meanwhile.
 	task.spawn(function()
-		for stage = 1, GROWTH_STAGES do
-			task.wait(crop.growTime / GROWTH_STAGES)
-			if tile:GetAttribute("PlantId") ~= plantId then
+		while tile:GetAttribute("PlantId") == plantId do
+			local growTime = crop.growTime * Farming.growthMultiplier(owner)
+			local progress = math.clamp((os.time() - plantedAt) / growTime, 0, 1)
+			setCropSize(tile, cropPart, progress)
+			if progress >= 1 then
+				cropPart.Color = crop.color
+				tile:SetAttribute("Ready", true)
+				prompt.ActionText = "Harvest"
 				return
 			end
-			setCropSize(tile, cropPart, stage / GROWTH_STAGES)
+			prompt.ActionText = `Growing... {math.ceil(growTime * (1 - progress))}s`
+			task.wait(1)
 		end
-		cropPart.Color = crop.color
-		tile:SetAttribute("Ready", true)
-		prompt.ActionText = "Harvest"
 	end)
+end
+
+local function plant(player: Player, tile: BasePart)
+	local cropName = player:GetAttribute("SelectedSeed")
+	if type(cropName) ~= "string" or not Crops[cropName] then
+		return
+	end
+	local data = PlayerData.get(player)
+	if not data or not PlayerData.takeSeed(player, cropName) then
+		return
+	end
+	local plantedAt = os.time()
+	data.garden[tile.Name] = { crop = cropName, plantedAt = plantedAt }
+	startGrowing(player, tile, cropName, plantedAt)
 end
 
 local function harvest(player: Player, tile: BasePart)
 	local cropName = tile:GetAttribute("Crop")
-	if type(cropName) ~= "string" then
+	local data = PlayerData.get(player)
+	if type(cropName) ~= "string" or not data then
 		return
 	end
-	PlayerData.addCrop(player, cropName, 1)
+	data.garden[tile.Name] = nil
+	PlayerData.addCrop(player, cropName, Farming.harvestAmount(player, cropName))
 	clearTile(tile)
 end
 
@@ -113,21 +140,46 @@ local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	end
 
 	local parent = prompt.Parent
-	if not parent then
-		return
-	end
-	if parent.Parent and parent.Parent.Name == "FrontGarden" then
+	if parent and parent.Parent and parent.Parent.Name == "FrontGarden" then
 		onTilePrompt(player, parent :: BasePart)
 	end
 end
 
+-- Puts the player's saved crops back on their plot once both are ready.
+local function restoreGarden(player: Player)
+	if not PlayerData.waitForLoad(player) then
+		return
+	end
+	local deadline = os.clock() + 10
+	while not Plots.getPlot(player) and player.Parent == Players and os.clock() < deadline do
+		task.wait(0.1)
+	end
+	local plot = Plots.getPlot(player)
+	local data = PlayerData.get(player)
+	if not plot or not data then
+		return
+	end
+	local garden = (plot :: any).FrontGarden :: Folder
+	for tileName, entry in data.garden do
+		local tile = garden:FindFirstChild(tileName) :: BasePart?
+		if tile and Crops[entry.crop] then
+			startGrowing(player, tile, entry.crop, entry.plantedAt)
+		else
+			data.garden[tileName] = nil
+		end
+	end
+end
+
 function Farming.start()
-	local remotes = Instance.new("Folder")
-	remotes.Name = "Remotes"
+	local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+	if not remotes then
+		remotes = Instance.new("Folder")
+		remotes.Name = "Remotes"
+		remotes.Parent = ReplicatedStorage
+	end
 	local selectSeed = Instance.new("RemoteEvent")
 	selectSeed.Name = "SelectSeed"
 	selectSeed.Parent = remotes
-	remotes.Parent = ReplicatedStorage
 
 	selectSeed.OnServerEvent:Connect(function(player, cropName)
 		if type(cropName) == "string" and Crops[cropName] then
@@ -135,14 +187,15 @@ function Farming.start()
 		end
 	end)
 
-	local function setDefaultSeed(player: Player)
+	local function onPlayerAdded(player: Player)
 		if player:GetAttribute("SelectedSeed") == nil then
 			player:SetAttribute("SelectedSeed", "Carrot")
 		end
+		restoreGarden(player)
 	end
-	Players.PlayerAdded:Connect(setDefaultSeed)
+	Players.PlayerAdded:Connect(onPlayerAdded)
 	for _, player in Players:GetPlayers() do
-		setDefaultSeed(player)
+		task.spawn(onPlayerAdded, player)
 	end
 
 	ProximityPromptService.PromptTriggered:Connect(onPromptTriggered)

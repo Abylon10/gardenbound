@@ -19,10 +19,13 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 
 ## Code layout
 - `src/server/init.server.luau` starts each system module in order.
-- `PlayerData` owns all saved player state (coins, seeds, crops) and
+- `PlayerData` owns all saved player state (see the `Data` type) and
   mirrors it to `leaderstats.Coins` and player attributes
-  `Seed_<Crop>` / `Crop_<Crop>`. Other systems change state only
-  through its functions.
+  `Seed_<Crop>`, `Crop_<Crop>`, `Item_<ItemId>`. Systems either use its
+  helpers (`addItem`, `pay`, ...) or edit `PlayerData.get(player)` and
+  then call `PlayerData.changed(player)`. Extra client-visible state is
+  published with `PlayerData.onSync`. New fields go in `defaultData()`;
+  old saves get the default.
 - `MapLayout` holds every map position: the sea, the Central Plaza at
   the origin, shop angles on its outer ring, the ring of 6 player
   islands, and the Dungeon Portal / Wilderness Gate islands to the
@@ -36,8 +39,11 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - `Plaza` builds `workspace.Plaza` (floor, fountain, lamps, 4 shop
   stalls, a bridge to every island) and handles shop prompts. Seed and Sell shops work; Gear and
   Blueprint are placeholders.
-- `Farming` handles soil-tile prompts (plant, grow, harvest). The server
-  always checks plot ownership.
+- `Farming` handles soil-tile prompts (plant, grow, harvest). Growth is
+  real-time and saved per tile (`garden`), so crops keep growing offline.
+  `Farming.growthMultiplier` / `harvestAmount` are hooks for bonuses.
+  The server always checks plot ownership; the client `PlotPrompts`
+  just hides other players' prompts.
 - `Landmarks` builds the Dungeon Portal and Wilderness Gate islands
   (decoration only for now).
 - `Spawning` turns off `CharacterAutoLoads`. While the loading screen is
@@ -61,6 +67,7 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - Tabs for indentation. Each module has a short header comment.
 - Prefer server-authoritative logic; the client only shows UI and sends
   requests.
-- No syntax checker in Studio-free environments by default; cloud
-  sessions can download `luau-compile` from luau-lang/luau releases and
-  run `luau-compile --null <file>` to catch syntax errors.
+- Run `scripts/check.sh` before pushing. It downloads the tools on first
+  run, syntax-checks every file, and type-checks against the Roblox API
+  (luau-lsp + Rojo sourcemap). Fix every TypeError it reports. The
+  `LoadCharacter` deprecation warning is expected.
