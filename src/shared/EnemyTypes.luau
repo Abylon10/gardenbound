@@ -13,6 +13,8 @@ export type EnemyType = {
 	shape: string,
 	coins: number,
 	drops: { [string]: number },
+	respawn: number?, -- seconds; default 10
+	boss: boolean?,
 }
 
 local EnemyTypes: { [string]: EnemyType } = {
@@ -54,6 +56,48 @@ local EnemyTypes: { [string]: EnemyType } = {
 		shape = "goblin",
 		coins = 8,
 		drops = { GoblinTooth = 0.5, CommonEgg = 0.15, ForestEgg = 0.08 },
+	},
+	-- Abandoned Mine
+	CaveBat = {
+		displayName = "Cave Bat",
+		health = 45,
+		damage = 8,
+		attackCooldown = 0.9,
+		speed = 16,
+		aggroRange = 28,
+		size = 3,
+		color = Color3.fromRGB(60, 50, 70),
+		shape = "bat",
+		coins = 5,
+		drops = { BatWing = 0.6 },
+	},
+	SkeletonMiner = {
+		displayName = "Skeleton Miner",
+		health = 110,
+		damage = 15,
+		attackCooldown = 1.4,
+		speed = 10,
+		aggroRange = 30,
+		size = 5,
+		color = Color3.fromRGB(235, 230, 210),
+		shape = "skeleton",
+		coins = 12,
+		drops = { Bone = 0.6, CopperOre = 0.4 },
+	},
+	RockGolem = {
+		displayName = "Rock Golem (Boss)",
+		health = 900,
+		damage = 30,
+		attackCooldown = 2,
+		speed = 7,
+		aggroRange = 40,
+		size = 10,
+		color = Color3.fromRGB(120, 110, 100),
+		shape = "golem",
+		coins = 120,
+		drops = { GolemCore = 1, IronOre = 1 },
+		respawn = 90,
+		boss = true,
 	},
 }
 

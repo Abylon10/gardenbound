@@ -181,6 +181,32 @@ local function buildPlot(index: number, origin: CFrame): Model
 	plot:SetAttribute("RoofIndex", roofIndex)
 	HomeBuilder.buildHouse(plot, origin, 1, ROOF_COLORS[roofIndex])
 
+	-- Cauldron behind the spawn point, between the house and back garden.
+	local cauldron = Instance.new("Model")
+	cauldron.Name = "Cauldron"
+	local potCFrame = origin * CFrame.new(-2, GROUND_TOP + 1.6, 30)
+	local pot = Build.part({
+		Name = "Pot",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(3.2, 4.5, 4.5),
+		CFrame = potCFrame * CFrame.Angles(0, 0, math.rad(90)),
+		Color = Color3.fromRGB(40, 40, 45),
+		Material = Enum.Material.Metal,
+	})
+	pot.Parent = cauldron
+	Build.part({
+		Name = "Brew",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(0.2, 3.8, 3.8),
+		CFrame = potCFrame * CFrame.new(0, 1.55, 0) * CFrame.Angles(0, 0, math.rad(90)),
+		Color = Color3.fromRGB(110, 220, 90),
+		Material = Enum.Material.Neon,
+		CanCollide = false,
+	}).Parent = cauldron
+	local brewPrompt = Build.prompt(pot, "Brew potions", "Cauldron")
+	brewPrompt.Name = "OpenBrewing"
+	cauldron.Parent = plot
+
 	local upgrade = Build.part({
 		Name = "HouseUpgrade",
 		Size = Vector3.new(4, 6, 1),

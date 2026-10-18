@@ -15,6 +15,9 @@ local Enemies = require(script.Enemies)
 local Combat = require(script.Combat)
 local PetSystem = require(script.PetSystem)
 local Wilderness = require(script.Wilderness)
+local Dungeon = require(script.Dungeon)
+local Forge = require(script.Forge)
+local Alchemy = require(script.Alchemy)
 
 -- Terrain first, so everything else is built on finished islands.
 Islands.start()
@@ -31,6 +34,9 @@ Enemies.start()
 Combat.start()
 PetSystem.start()
 Wilderness.start()
+Dungeon.start()
+Forge.start()
+Alchemy.start()
 -- Last: characters only spawn once the map and plots exist.
 Spawning.start()
 

@@ -41,10 +41,20 @@ Each phase should be playable on its own before the next starts.
       one of each; equipped pets follow you and give bonuses
 - [ ] Pet levels (later)
 
-### Phase 4: Dungeon, forging, potions
-- One dungeon (Abandoned Mine): copper, iron, monster materials
-- Forge: craft basic gear from recipes, upgrade +1 to +10
-- Health and attack/defense potions
+### Phase 4: Dungeon, forging, potions (done)
+- [x] Abandoned Mine through the Dungeon Portal: Entrance, Tunnels,
+      Diggings, Golem Hall; cave bats, skeleton miners, Rock Golem boss
+- [x] Copper and iron ore veins (regrow after 45 s)
+- [x] Forge at the Gear Shop: 3 swords + 4 armors to craft, upgrade +1
+      to +10, equip from the Bag's Gear tab
+- [x] Cauldron at home: Health, Strength, Iron Skin, Swiftness, and
+      Growth potions; use from the Bag
+
+## MVP status
+All four phases of the proposal's first playable version are in. Next
+ideas: test and balance in Studio, pet levels, free furniture placement,
+instanced/co-op dungeons, more zones (Deep Forest, Mountain, Corrupted
+Lands) and dungeons, real art to replace the code-built placeholders.
 
 ## Later (from the proposal)
 More biomes (Deep Forest, Mountain, Corrupted Lands), more dungeons

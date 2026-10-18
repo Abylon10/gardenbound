@@ -77,7 +77,7 @@ local function buildDungeonPortal(parent: Instance)
 		Material = Enum.Material.Slate,
 	})
 	lintel.Parent = portal
-	Build.sign(lintel, "Dungeon Portal", "Coming soon", 6)
+	Build.sign(lintel, "Dungeon Portal", "Abandoned Mine: ore, monsters, and a Rock Golem", 6)
 
 	local gateway = Build.part({
 		Name = "Gateway",
