@@ -75,7 +75,11 @@ local function buildMeadow(parent: Instance)
 				Material = Enum.Material.Rock,
 			}).Parent = decor
 		else
-			Build.tree(decor, position, random:NextNumber(0.8, 1.3))
+			if i % 3 == 0 then
+				Build.pineTree(decor, position, random:NextNumber(1, 1.5))
+			else
+				Build.tree(decor, position, random:NextNumber(0.8, 1.3))
+			end
 			local side = random:NextNumber(0, math.pi * 2)
 			local besideSpot = position + Vector3.new(math.cos(side) * 3.5, 0, math.sin(side) * 3.5)
 			if inside(besideSpot) then

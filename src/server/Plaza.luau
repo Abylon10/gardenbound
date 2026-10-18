@@ -16,6 +16,7 @@ local PlayerData = require(script.Parent.PlayerData)
 local TOP = MapLayout.PLAZA_TOP
 local STONE = Color3.fromRGB(196, 188, 170)
 local WOOD = Color3.fromRGB(150, 105, 65)
+local PAVING = Color3.fromRGB(218, 196, 155)
 
 type ShopInfo = {
 	key: string,
@@ -86,15 +87,38 @@ local function buildStall(shop: ShopInfo, origin: CFrame): Model
 		}).Parent = stall
 	end
 
-	local awning = Build.part({
-		Name = "Awning",
-		Size = Vector3.new(20, 0.6, 14),
-		CFrame = origin * CFrame.new(0, TOP + 10.5, 0) * CFrame.Angles(math.rad(-10), 0, 0),
-		Color = shop.color,
-		Material = Enum.Material.Fabric,
+	-- Striped awning (shop color and white), tilted down at the front.
+	local stripes = 6
+	local awningFrame = origin * CFrame.new(0, TOP + 10.5, 0) * CFrame.Angles(math.rad(-10), 0, 0)
+	for i = 1, stripes do
+		Build.part({
+			Name = "Awning",
+			Size = Vector3.new(20 / stripes, 0.6, 14),
+			CFrame = awningFrame * CFrame.new(-10 + (i - 0.5) * (20 / stripes), 0, 0),
+			Color = if i % 2 == 1 then shop.color else Color3.fromRGB(245, 245, 240),
+			Material = Enum.Material.Fabric,
+		}).Parent = stall
+	end
+	-- Scalloped valance along the front edge.
+	for i = 1, stripes * 2 do
+		Build.part({
+			Name = "Valance",
+			Size = Vector3.new(20 / (stripes * 2) - 0.1, 1.2, 0.2),
+			CFrame = awningFrame * CFrame.new(-10 + (i - 0.5) * (20 / (stripes * 2)), -0.8, -7),
+			Color = if i % 2 == 1 then shop.color else Color3.fromRGB(245, 245, 240),
+			Material = Enum.Material.Fabric,
+			CanCollide = false,
+		}).Parent = stall
+	end
+	local board = Build.part({
+		Name = "SignBoard",
+		Size = Vector3.new(10, 2.2, 0.4),
+		CFrame = origin * CFrame.new(0, TOP + 12.8, -6.2),
+		Color = Color3.fromRGB(120, 80, 45),
+		Material = Enum.Material.Wood,
 	})
-	awning.Parent = stall
-	Build.sign(awning, shop.displayName, shop.subtitle, 5)
+	board.Parent = stall
+	Build.sign(board, shop.displayName, shop.subtitle, 3.5)
 
 	local counterTop = TOP + 0.6 + 3.5
 	if shop.key == "SeedShop" then
@@ -168,16 +192,45 @@ local function buildFountain(parent: Instance)
 		Transparency = 0.25,
 	}, Vector3.new(0, TOP + 10.1, 0), 0.4, 7.5).Parent = fountain
 
-	local sprout = Build.part({
-		Name = "Sprout",
+	-- A stone gardener statue on top, holding up a glowing seed.
+	local marble = Color3.fromRGB(225, 222, 210)
+	cylinder({ Name = "Pedestal", Color = STONE, Material = Enum.Material.Marble }, Vector3.new(0, TOP + 11.2, 0), 2.4, 4.5).Parent = fountain
+	Build.part({
+		Name = "Robe",
+		Size = Vector3.new(2.6, 4.2, 1.8),
+		CFrame = CFrame.new(0, TOP + 14.5, 0),
+		Color = marble,
+		Material = Enum.Material.Marble,
+	}).Parent = fountain
+	Build.part({
+		Name = "Head",
 		Shape = Enum.PartType.Ball,
-		Size = Vector3.new(4, 4, 4),
-		CFrame = CFrame.new(0, TOP + 12.5, 0),
-		Color = Color3.fromRGB(110, 200, 90),
-		Material = Enum.Material.Grass,
+		Size = Vector3.new(1.6, 1.6, 1.6),
+		CFrame = CFrame.new(0, TOP + 17.4, 0),
+		Color = marble,
+		Material = Enum.Material.Marble,
+	}).Parent = fountain
+	Build.part({
+		Name = "Arm",
+		Size = Vector3.new(0.7, 3, 0.7),
+		CFrame = CFrame.new(1.3, TOP + 17.3, 0) * CFrame.Angles(0, 0, math.rad(-20)),
+		Color = marble,
+		Material = Enum.Material.Marble,
+	}).Parent = fountain
+	local seed = Build.part({
+		Name = "Seed",
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(1.4, 1.4, 1.4),
+		CFrame = CFrame.new(1.9, TOP + 19.1, 0),
+		Color = Color3.fromRGB(140, 255, 120),
+		Material = Enum.Material.Neon,
 	})
-	sprout.Parent = fountain
-	Build.sign(sprout, "Central Plaza", nil, 5)
+	local glow = Instance.new("PointLight")
+	glow.Color = Color3.fromRGB(150, 255, 130)
+	glow.Range = 16
+	glow.Parent = seed
+	seed.Parent = fountain
+	Build.sign(seed, "Central Plaza", nil, 4)
 
 	fountain.Parent = parent
 end
@@ -205,11 +258,62 @@ local function buildGreenery(parent: Instance)
 	greenery.Parent = parent
 end
 
--- A wooden bridge from the plaza edge onto an island.
+-- A wooden bridge from the foot of the plaza steps onto an island, with a
+-- pair of banners at the top of the steps.
 local function buildBridge(parent: Instance, island: MapLayout.Island)
-	local from = MapLayout.pointAt(island.angle, MapLayout.PLAZA_RADIUS - 2)
+	local from = MapLayout.pointAt(island.angle, MapLayout.PLAZA_STEPS_RADIUS + 1)
 	local to = MapLayout.pointAt(island.angle, island.radius - island.islandRadius + 6)
-	Build.bridge(parent, "Bridge_" .. island.name, from, to, TOP)
+	Build.bridge(parent, "Bridge_" .. island.name, from, to, MapLayout.GROUND_TOP + 0.2)
+
+	local color = if island.name == "DungeonPortal"
+		then Color3.fromRGB(110, 60, 170)
+		elseif island.name == "WildernessGate" then Color3.fromRGB(60, 140, 70)
+		else Color3.fromRGB(45, 85, 175)
+	local edge = MapLayout.pointAt(island.angle, MapLayout.PLAZA_RADIUS - 2)
+	local radians = math.rad(island.angle)
+	local outward = Vector3.new(math.sin(radians), 0, -math.cos(radians))
+	local sideways = Vector3.new(-outward.Z, 0, outward.X)
+	for _, side in { -1, 1 } do
+		Build.banner(parent, edge + sideways * (7 * side) + Vector3.new(0, TOP, 0), outward, color)
+	end
+end
+
+-- The raised plaza: a ring of steps down to the island grass all the way
+-- round, a paved floor, and decorative rings in the paving.
+local function buildFloor(parent: Model): BasePart
+	local radius = MapLayout.PLAZA_RADIUS
+	local base = MapLayout.GROUND_TOP - 3
+	for i = MapLayout.PLAZA_STEPS, 1, -1 do
+		local top = MapLayout.GROUND_TOP + (MapLayout.PLAZA_STEPS - i + 1) * MapLayout.PLAZA_STEP_RISE - MapLayout.PLAZA_STEP_RISE
+		local stepRadius = radius + i * MapLayout.PLAZA_STEP_RUN
+		cylinder({
+			Name = "Step",
+			Color = Color3.fromRGB(190, 172, 140),
+			Material = Enum.Material.Slate,
+		}, Vector3.new(0, (top + MapLayout.PLAZA_STEP_RISE + base) / 2, 0), top + MapLayout.PLAZA_STEP_RISE - base, stepRadius * 2).Parent =
+			parent
+	end
+	local floor = cylinder({
+		Name = "Floor",
+		Color = PAVING,
+		Material = Enum.Material.Pavement,
+	}, Vector3.new(0, (TOP + base) / 2, 0), TOP - base, radius * 2)
+	floor.Parent = parent
+	for _, ring in { { 30, 34 }, { 62, 66 } } do
+		cylinder({
+			Name = "PavingRing",
+			Color = Color3.fromRGB(175, 150, 115),
+			Material = Enum.Material.Slate,
+			CanCollide = false,
+		}, Vector3.new(0, TOP + 0.02, 0), 0.05, ring[2] * 2).Parent = parent
+		cylinder({
+			Name = "PavingRingInner",
+			Color = PAVING,
+			Material = Enum.Material.Pavement,
+			CanCollide = false,
+		}, Vector3.new(0, TOP + 0.03, 0), 0.05, ring[1] * 2).Parent = parent
+	end
+	return floor
 end
 
 local function buildPlaza()
@@ -219,17 +323,7 @@ local function buildPlaza()
 	-- bridges are never missing underfoot.
 	plaza.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 
-	local radius = MapLayout.PLAZA_RADIUS
-	local floor = Build.part({
-		Name = "Floor",
-		Shape = Enum.PartType.Cylinder,
-		Size = Vector3.new(TOP, radius * 2, radius * 2),
-		CFrame = CFrame.new(0, TOP / 2, 0) * CFrame.Angles(0, 0, math.rad(90)),
-		Color = STONE,
-		Material = Enum.Material.Cobblestone,
-	})
-	floor.Parent = plaza
-	plaza.PrimaryPart = floor
+	plaza.PrimaryPart = buildFloor(plaza)
 
 	buildFountain(plaza)
 	buildGreenery(plaza)

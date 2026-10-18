@@ -34,6 +34,9 @@ Positions are in `src/server/MapLayout.luau`.
 | Wilderness Gate | North-east (30°), radius 280, island radius 60. Bridge on to the Meadow |
 | Meadow | 30°, radius 550, island radius 150. Slimes, goblins, eggs |
 | Bridges | Wooden bridge from the plaza to every island, and from the gate to the Meadow |
+| Heights | Water at -3, island grass at 15, plaza floor at 19 on 8 steps |
+| Docks | One behind every player island, by each landmark, on the Meadow, and two on the plaza island; stairs up the cliff |
+| NPCs | Louisa (Seed), Diane (Sell), Arthur (Gear), Gary (Blueprint), Kevin and Josh (Wilderness Gate), Sir Alfred and Dame Susan (Dungeon Portal) |
 | Teleports | "Plaza" and "My Garden" buttons: either end of your garden's bridge |
 
 The template Baseplate is removed when the game starts, because it would

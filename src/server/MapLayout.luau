@@ -17,13 +17,18 @@ local MapLayout = {
 	WATER_LEVEL = -3,
 	SEA_FLOOR = -30,
 	MAP_EXTENT = 700,
-	-- Top of the grass on every island.
-	GROUND_TOP = 1,
+	-- Top of the grass on every island: high enough above the water that
+	-- players can't jump up the cliffs. Docks with stairs lead up instead.
+	GROUND_TOP = 15,
 
 	PLAZA_RADIUS = 100,
-	PLAZA_ISLAND_RADIUS = 110,
-	-- Top of the plaza floor; the default SpawnLocation sits just below it.
-	PLAZA_TOP = 1.2,
+	PLAZA_ISLAND_RADIUS = 122,
+	-- The plaza floor is raised on a ring of steps above the island grass.
+	PLAZA_STEPS = 8,
+	PLAZA_STEP_RISE = 0.5,
+	PLAZA_STEP_RUN = 1.25,
+	-- Top of the plaza floor (set below from GROUND_TOP and the steps).
+	PLAZA_TOP = 0,
 
 	-- The four shops stand on the plaza's outer ring, facing the center.
 	SHOP_RING_RADIUS = 82,
@@ -50,6 +55,10 @@ local MapLayout = {
 		Meadow = { angle = 30, radius = 550, islandRadius = 150 },
 	},
 }
+
+MapLayout.PLAZA_TOP = MapLayout.GROUND_TOP + MapLayout.PLAZA_STEPS * MapLayout.PLAZA_STEP_RISE
+-- Outer edge of the bottom plaza step.
+MapLayout.PLAZA_STEPS_RADIUS = MapLayout.PLAZA_RADIUS + MapLayout.PLAZA_STEPS * MapLayout.PLAZA_STEP_RUN
 
 function MapLayout.pointAt(angle: number, radius: number): Vector3
 	local radians = math.rad(angle)
@@ -96,6 +105,36 @@ function MapLayout.zones(): { Island }
 		})
 	end
 	return zones
+end
+
+export type Dock = {
+	name: string,
+	center: Vector3,
+	islandRadius: number,
+	bearing: number, -- direction from the island center, degrees
+	side: number, -- which way the stairs run along the cliff (1 or -1)
+}
+
+-- Docks at water level with stairs up the cliff, so players who fall in
+-- can climb back. Positions were checked to clear islands and bridges.
+function MapLayout.docks(): { Dock }
+	local docks: { Dock } = {}
+	local function add(name: string, center: Vector3, islandRadius: number, bearing: number, side: number)
+		table.insert(docks, { name = name, center = center, islandRadius = islandRadius, bearing = bearing, side = side })
+	end
+	add("PlazaEast", Vector3.zero, MapLayout.PLAZA_ISLAND_RADIUS, 92, 1)
+	add("PlazaWest", Vector3.zero, MapLayout.PLAZA_ISLAND_RADIUS, 268, -1)
+	for i, angle in MapLayout.PLOT_ANGLES do
+		-- Behind each plot, facing away from the plaza.
+		add("Plot" .. i, MapLayout.pointAt(angle, MapLayout.PLOT_RING_RADIUS), MapLayout.PLOT_ISLAND_RADIUS, angle, 1)
+	end
+	local portal = MapLayout.LANDMARKS.DungeonPortal
+	add("DungeonPortal", MapLayout.pointAt(portal.angle, portal.radius), portal.islandRadius, 0, 1)
+	local gate = MapLayout.LANDMARKS.WildernessGate
+	add("WildernessGate", MapLayout.pointAt(gate.angle, gate.radius), gate.islandRadius, 330, 1)
+	local meadow = MapLayout.ZONES.Meadow
+	add("Meadow", MapLayout.pointAt(meadow.angle, meadow.radius), meadow.islandRadius, meadow.angle, 1)
+	return docks
 end
 
 return MapLayout

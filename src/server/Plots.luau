@@ -83,7 +83,8 @@ local function buildDecor(plot: Model, origin: CFrame)
 	buildFencedArea(decor, origin, 6, 8, 40, 40, { left = true }, 8)
 	Build.signPost(decor, (origin * CFrame.new(43, GROUND_TOP, 6)).Position, "Back Garden", BACK_GARDEN_COLOR)
 
-	for _, spot in {
+	-- Round trees and pines around the island, like the map art.
+	for i, spot in {
 		Vector3.new(-42, 0, -25),
 		Vector3.new(42, 0, -25),
 		Vector3.new(-55, 0, 0),
@@ -91,8 +92,21 @@ local function buildDecor(plot: Model, origin: CFrame)
 		Vector3.new(-45, 0, 48),
 		Vector3.new(0, 0, 55),
 		Vector3.new(42, 0, 47),
+		Vector3.new(-68, 0, 28),
+		Vector3.new(68, 0, 28),
+		Vector3.new(-62, 0, -42),
+		Vector3.new(62, 0, -42),
+		Vector3.new(-30, 0, 78),
+		Vector3.new(50, 0, 70),
+		Vector3.new(-75, 0, -10),
+		Vector3.new(75, 0, -10),
 	} do
-		Build.tree(decor, (origin * CFrame.new(spot.X, GROUND_TOP, spot.Z)).Position, 1)
+		local position = (origin * CFrame.new(spot.X, GROUND_TOP, spot.Z)).Position
+		if i % 2 == 0 then
+			Build.pineTree(decor, position, 1.1)
+		else
+			Build.tree(decor, position, 1)
+		end
 	end
 end
 
@@ -106,7 +120,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 	local ground = Build.part({
 		Name = "Ground",
 		Size = Vector3.new(PLOT_SIZE, 1, PLOT_SIZE),
-		CFrame = origin * CFrame.new(0, 0.5, 0),
+		CFrame = origin * CFrame.new(0, GROUND_TOP - 0.5, 0),
 		-- The island terrain is the visible ground. This invisible part sits
 		-- exactly at grass level so there is always solid ground, even before
 		-- the terrain has streamed in on the client.
@@ -124,7 +138,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 		local tile = Build.part({
 			Name = "Tile" .. tileIndex,
 			Size = Vector3.new(TILE_SIZE, 1, TILE_SIZE),
-			CFrame = origin * CFrame.new(x, 1.5, z),
+			CFrame = origin * CFrame.new(x, GROUND_TOP + 0.5, z),
 			Color = Color3.fromRGB(110, 72, 44),
 			Material = Enum.Material.Ground,
 		})
@@ -222,7 +236,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 	local signAnchor = Build.part({
 		Name = "SignAnchor",
 		Size = Vector3.new(1, 1, 1),
-		CFrame = origin * CFrame.new(0, 8, -54),
+		CFrame = origin * CFrame.new(0, GROUND_TOP + 7, -54),
 		Transparency = 1,
 		CanCollide = false,
 	})
@@ -232,7 +246,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 	local spawnPoint = Build.part({
 		Name = "SpawnPoint",
 		Size = Vector3.new(1, 1, 1),
-		CFrame = origin * CFrame.new(0, 4, 15),
+		CFrame = origin * CFrame.new(0, GROUND_TOP + 3, 15),
 		Transparency = 1,
 		CanCollide = false,
 	})
