@@ -12,7 +12,9 @@ Each phase should be playable on its own before the next starts.
 ### Phase 1: Front garden economy (in progress)
 - [x] Plot per player (6 plots, generated at runtime)
 - [x] Plant → grow → harvest → sell loop (Carrot, Tomato, Pumpkin)
-- [x] Seed shop, sell stand, coins on the leaderboard
+- [x] Central Plaza with Seed, Sell, Gear, and Blueprint shops on its
+      outer ring; plots in a ring around it (see `docs/map-design.md`)
+- [x] Seed shop and sell shop work, coins on the leaderboard
 - [x] Seed bar UI to pick the seed to plant
 - [x] Save coins, seeds, and harvested crops (DataStore)
 - [ ] Save planted crops between sessions

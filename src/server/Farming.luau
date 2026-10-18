@@ -1,6 +1,7 @@
--- Planting, growing, harvesting, buying seeds, and selling crops.
--- Everything is driven by ProximityPrompts built in Plots, so the client
--- only needs one remote: choosing which seed to plant.
+-- Planting, growing, and harvesting on each player's front garden.
+-- Driven by the soil-tile ProximityPrompts built in Plots, so the client
+-- only needs one remote: choosing which seed to plant. Buying and selling
+-- happen at the plaza shops (see Plaza).
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -102,31 +103,6 @@ local function onTilePrompt(player: Player, tile: BasePart)
 	end
 end
 
-local function onBuyPrompt(player: Player, crate: Instance)
-	local cropName = string.match(crate.Name, "^Buy_(.+)$")
-	local crop = if cropName then Crops[cropName] else nil
-	if not crop then
-		return
-	end
-	if PlayerData.spendCoins(player, crop.seedPrice) then
-		PlayerData.addSeeds(player, cropName :: string, 1)
-	end
-end
-
-local function onSellPrompt(player: Player)
-	local sold = PlayerData.takeAllCrops(player)
-	local total = 0
-	for cropName, count in sold do
-		local crop = Crops[cropName]
-		if crop then
-			total += crop.sellPrice * count
-		end
-	end
-	if total > 0 then
-		PlayerData.addCoins(player, total)
-	end
-end
-
 local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	local plot = Plots.findPlot(prompt)
 	if not plot or Plots.getOwner(plot) ~= player then
@@ -142,10 +118,6 @@ local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	end
 	if parent.Parent and parent.Parent.Name == "FrontGarden" then
 		onTilePrompt(player, parent :: BasePart)
-	elseif parent.Parent and parent.Parent.Name == "SeedShop" then
-		onBuyPrompt(player, parent)
-	elseif parent.Name == "SellStand" then
-		onSellPrompt(player)
 	end
 end
 
