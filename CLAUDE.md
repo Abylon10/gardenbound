@@ -75,6 +75,8 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   per-potion cooldowns; timed buffs are a Bonuses source and multiply
   WalkSpeed. Three potions (Health, Swiftness, Strength) in
   `shared/Potions`.
+- `Travel`: TravelTo("Plaza" | "Garden") remote behind the client
+  `TravelButtons`; plaza end / island end of the player's bridge.
 - `Teleport.to(player, cframe)` moves a character safely (holds it while
   the destination streams in).
 - `Notify.send(player, text, kind)` shows a toast; `Remotes.event(name)`

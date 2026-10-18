@@ -56,7 +56,7 @@ local function buildMeadow(parent: Instance)
 	local decor = Instance.new("Folder")
 	decor.Name = "Decor"
 	decor.Parent = meadow
-	for i = 1, 40 do
+	for i = 1, 80 do
 		local angle = random:NextNumber(0, math.pi * 2)
 		local distance = random:NextNumber(20, zone.islandRadius - 8)
 		local position = center + Vector3.new(math.cos(angle) * distance, GROUND_TOP, math.sin(angle) * distance)
@@ -84,7 +84,7 @@ local function buildMeadow(parent: Instance)
 		end
 	end
 	-- Open clearings.
-	for _ = 1, 15 do
+	for _ = 1, 25 do
 		local angle = random:NextNumber(0, math.pi * 2)
 		local distance = random:NextNumber(10, zone.islandRadius - 10)
 		table.insert(spots, {
@@ -95,8 +95,8 @@ local function buildMeadow(parent: Instance)
 
 	meadow.Parent = parent
 	Enemies.registerZone("Meadow", center, zone.islandRadius - 12, GROUND_TOP, {
-		Slime = 8,
-		Goblin = 4,
+		Slime = 12,
+		Goblin = 6,
 	})
 	EggSpawns.registerArea("Meadow", meadow, entrance, zone.islandRadius * 2, spots)
 end

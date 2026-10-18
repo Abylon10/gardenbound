@@ -26,13 +26,15 @@ Positions are in `src/server/MapLayout.luau`.
 
 | Thing | Where / what |
 |---|---|
-| Sea | Terrain water from y -30 to -3, sand floor, 720×720 studs |
-| Central Plaza | Island radius 68, stone floor radius 60, fountain, 8 lamps, 3 planter trees |
-| Shops | Ring radius 48: Seed NE (45°), Sell SE (135°), Gear SW (225°), Blueprint NW (315°) |
-| Player islands | Ring radius 220 at 70°–290°, island radius 72. Each has a fenced Front Garden (12 soil tiles, yellow sign) facing the plaza, a house with a colored roof, a fenced Back Garden (green sign, saplings), and trees |
-| Dungeon Portal | North (0°), island radius 42. Stone arch, purple glowing gateway, torches. Not usable yet |
-| Wilderness Gate | North-east (27°), island radius 42. Log gate with banner. Not usable yet |
-| Bridges | Wooden bridge with railings from the plaza to every island |
+| Sea | Terrain water from y -30 to -3, sand floor, 1400×1400 studs |
+| Central Plaza | Island radius 110, stone floor radius 100, fountain, two rings of lamps, 6 planter trees |
+| Shops | Ring radius 82: Seed NE (45°), Sell SE (135°), Gear SW (225°), Blueprint NW (315°) |
+| Player islands | Ring radius 280 at 70°–290°, island radius 95. Front garden, house, back garden, cauldron, trees |
+| Dungeon Portal | North (0°), radius 280, island radius 60. Leads to the Abandoned Mine |
+| Wilderness Gate | North-east (30°), radius 280, island radius 60. Bridge on to the Meadow |
+| Meadow | 30°, radius 550, island radius 150. Slimes, goblins, eggs |
+| Bridges | Wooden bridge from the plaza to every island, and from the gate to the Meadow |
+| Teleports | "Plaza" and "My Garden" buttons: either end of your garden's bridge |
 
 The template Baseplate is removed when the game starts, because it would
 sit above the water. Detailed models (real shop and house art, docks,

@@ -16,17 +16,17 @@ local MapLayout = {
 	-- out from the origin in every direction.
 	WATER_LEVEL = -3,
 	SEA_FLOOR = -30,
-	MAP_EXTENT = 540,
+	MAP_EXTENT = 700,
 	-- Top of the grass on every island.
 	GROUND_TOP = 1,
 
-	PLAZA_RADIUS = 60,
-	PLAZA_ISLAND_RADIUS = 68,
+	PLAZA_RADIUS = 100,
+	PLAZA_ISLAND_RADIUS = 110,
 	-- Top of the plaza floor; the default SpawnLocation sits just below it.
 	PLAZA_TOP = 1.2,
 
 	-- The four shops stand on the plaza's outer ring, facing the center.
-	SHOP_RING_RADIUS = 48,
+	SHOP_RING_RADIUS = 82,
 	SHOP_ANGLES = {
 		SeedShop = 45,
 		SellShop = 135,
@@ -34,20 +34,20 @@ local MapLayout = {
 		BlueprintShop = 315,
 	},
 
-	PLOT_RING_RADIUS = 220,
-	PLOT_SIZE = 90,
-	PLOT_ISLAND_RADIUS = 72,
+	PLOT_RING_RADIUS = 280,
+	PLOT_SIZE = 130,
+	PLOT_ISLAND_RADIUS = 95,
 	PLOT_ANGLES = { 70, 114, 158, 202, 246, 290 },
 
 	LANDMARKS = {
-		DungeonPortal = { angle = 0, radius = 220, islandRadius = 42 },
-		WildernessGate = { angle = 27, radius = 220, islandRadius = 42 },
+		DungeonPortal = { angle = 0, radius = 280, islandRadius = 60 },
+		WildernessGate = { angle = 30, radius = 280, islandRadius = 60 },
 	},
 
 	-- Wilderness zones, reached through the Wilderness Gate (same angle,
 	-- further out). Not connected to the plaza directly.
 	ZONES = {
-		Meadow = { angle = 27, radius = 430, islandRadius = 110 },
+		Meadow = { angle = 30, radius = 550, islandRadius = 150 },
 	},
 }
 

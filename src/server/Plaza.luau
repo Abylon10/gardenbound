@@ -187,12 +187,15 @@ end
 local function buildGreenery(parent: Instance)
 	local greenery = Instance.new("Folder")
 	greenery.Name = "Greenery"
-	for _, angle in { 12, 50, 92, 136, 180, 224, 268, 325 } do
-		local position = MapLayout.pointAt(angle, MapLayout.PLAZA_RADIUS - 3)
-		Build.lamp(greenery, position + Vector3.new(0, TOP, 0))
+	-- Two rings of lamps: around the edge and around the middle.
+	for _, radius in { MapLayout.PLAZA_RADIUS - 3, MapLayout.PLAZA_RADIUS * 0.55 } do
+		for _, angle in { 15, 50, 92, 136, 180, 224, 268, 325 } do
+			local position = MapLayout.pointAt(angle, radius)
+			Build.lamp(greenery, position + Vector3.new(0, TOP, 0))
+		end
 	end
-	for _, angle in { 92, 180, 268 } do
-		local position = MapLayout.pointAt(angle, 30)
+	for _, angle in { 50, 92, 136, 224, 268, 325 } do
+		local position = MapLayout.pointAt(angle, MapLayout.PLAZA_RADIUS * 0.35)
 		cylinder({ Name = "Planter", Color = Color3.fromRGB(150, 145, 135), Material = Enum.Material.Cobblestone }, position + Vector3.new(0, TOP + 0.75, 0), 1.5, 9).Parent =
 			greenery
 		cylinder({ Name = "Soil", Color = Color3.fromRGB(90, 60, 40), Material = Enum.Material.Ground }, position + Vector3.new(0, TOP + 1.1, 0), 1.5, 7.5).Parent =
