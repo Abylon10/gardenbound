@@ -37,7 +37,7 @@ end
 -- Damage for one hit, and whether it was a critical hit.
 function Combat.rollDamage(player: Player): (number, boolean)
 	local id, level = weaponOf(player)
-	local damage = Gear.statFor(id, level) + Bonuses.get(player, "damage")
+	local damage = (Gear.statFor(id, level) + Bonuses.get(player, "damage")) * Bonuses.get(player, "damageMultiplier")
 	local crit = math.random() < Bonuses.get(player, "crit")
 	if crit then
 		damage *= 2
@@ -174,6 +174,15 @@ local function onKilled(player: Player, kind: string, _position: Vector3)
 			PlayerData.addItem(player, itemId, 1)
 			local item = Items[itemId]
 			table.insert(parts, if item then item.displayName else itemId)
+		end
+	end
+	local gearDrops: { [string]: number } = def.gearDrops or {}
+	local data = PlayerData.get(player)
+	for gearId, chance in gearDrops do
+		if data and data.gear[gearId] == nil and Gear.list[gearId] and math.random() < chance then
+			data.gear[gearId] = 0
+			PlayerData.changed(player)
+			table.insert(parts, `a {Gear.list[gearId].displayName}! (Equip it from the Gear tab)`)
 		end
 	end
 	Notify.send(player, `{def.displayName} defeated! ` .. table.concat(parts, ", "), "success")

@@ -101,11 +101,11 @@ local function buildStall(shop: ShopInfo, origin: CFrame): Model
 		-- Crates of produce on the counter (decoration).
 		local names = sortedCropNames()
 		for i, cropName in names do
-			local x = (i - (#names + 1) / 2) * 4.5
+			local x = (i - (#names + 1) / 2) * 3.1
 			Build.part({
 				Name = "Crate",
-				Size = Vector3.new(3, 2.5, 3),
-				CFrame = origin * CFrame.new(x, counterTop + 1.25, -4),
+				Size = Vector3.new(2.6, 2.2, 2.6),
+				CFrame = origin * CFrame.new(x, counterTop + 1.1, -4),
 				Color = Crops[cropName].color,
 				Material = Enum.Material.WoodPlanks,
 			}).Parent = stall

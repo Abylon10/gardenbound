@@ -44,12 +44,12 @@ function SeedBar.start()
 		local button = Instance.new("TextButton")
 		button.Name = id
 		button.LayoutOrder = order
-		button.Size = UDim2.fromOffset(104, 64)
+		button.Size = UDim2.fromOffset(96, 64)
 		button.BackgroundColor3 = NORMAL_COLOR
 		button.BackgroundTransparency = 0.2
 		button.TextColor3 = Color3.new(1, 1, 1)
 		button.Font = Enum.Font.FredokaOne
-		button.TextSize = 14
+		button.TextSize = 13
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0, 10)
 		corner.Parent = button

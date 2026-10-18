@@ -1,9 +1,9 @@
 -- The Abandoned Mine: a dungeon far below the map, entered through the
 -- Dungeon Portal. Four rooms in a row joined by tunnels:
---   Entrance   safe; exit portal back to Spawn Island
---   Tunnels    cave bats, copper veins
---   Diggings   cave bats, skeleton miners, copper and iron veins
---   Golem Hall the Rock Golem boss, skeleton miners, iron veins
+--   Entrance     safe; exit portal back to Spawn Island
+--   Tunnels      bats, copper veins
+--   Diggings     slimes and bats, copper and iron veins
+--   Deep Cavern  more slimes and bats, iron veins
 -- Ore veins: hold E to mine 1-2 ore; a mined vein regrows after a while.
 -- Shared by everyone on the server (not instanced).
 
@@ -44,7 +44,7 @@ local ROOMS: { Room } = {
 		name = "Tunnels",
 		x = 64,
 		size = 40,
-		population = { CaveBat = 4 },
+		population = { Bat = 4 },
 		veins = {
 			{ ore = "CopperOre", x = -14, z = 16 },
 			{ ore = "CopperOre", x = 10, z = -16 },
@@ -55,7 +55,7 @@ local ROOMS: { Room } = {
 		name = "Diggings",
 		x = 132,
 		size = 44,
-		population = { CaveBat = 2, SkeletonMiner = 3 },
+		population = { CaveSlime = 3, Bat = 2 },
 		veins = {
 			{ ore = "CopperOre", x = -16, z = -18 },
 			{ ore = "CopperOre", x = 16, z = 18 },
@@ -64,10 +64,10 @@ local ROOMS: { Room } = {
 		},
 	},
 	{
-		name = "GolemHall",
+		name = "DeepCavern",
 		x = 214,
 		size = 60,
-		population = { RockGolem = 1, SkeletonMiner = 2 },
+		population = { CaveSlime = 4, Bat = 4 },
 		veins = {
 			{ ore = "IronOre", x = -24, z = -26 },
 			{ ore = "IronOre", x = -24, z = 26 },
@@ -313,7 +313,7 @@ end
 local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	if prompt.Name == "EnterMine" then
 		Teleport.to(player, entranceCFrame)
-		Notify.send(player, "Welcome to the Abandoned Mine. Watch out for the Rock Golem!", "info")
+		Notify.send(player, "Welcome to the Abandoned Mine. Slimes and bats lurk below!", "info")
 	elseif prompt.Name == "LeaveMine" and prompt:IsDescendantOf(mine) then
 		Teleport.to(player, portalReturnCFrame())
 	elseif prompt.Name == "MineVein" and prompt:IsDescendantOf(mine) and PlayerData.isLoaded(player) then

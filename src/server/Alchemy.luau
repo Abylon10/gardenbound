@@ -1,8 +1,9 @@
 -- Potions: brew them at the cauldron by your house, use them from the
 -- Bag. Remotes: Brew(potionId) (at your own cauldron), UsePotion(potionId).
--- Buffs last a set time (not saved), count as a Bonuses source, and may
--- add running speed. Publishes "Buffs" (JSON potionId -> end time, in
--- workspace:GetServerTimeNow() seconds) for the client buff bar.
+-- Each potion has a cooldown before it can be used again. Buffs last a set
+-- time (not saved), count as a Bonuses source, and may multiply running
+-- speed. Publishes "Buffs" (JSON potionId -> end time, in
+-- workspace:GetServerTimeNow() seconds) for the client buff list.
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -11,7 +12,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Items = require(ReplicatedStorage.Shared.Items)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local Bonuses = require(script.Parent.Bonuses)
-local Farming = require(script.Parent.Farming)
 local Notify = require(script.Parent.Notify)
 local PlayerData = require(script.Parent.PlayerData)
 local Plots = require(script.Parent.Plots)
@@ -24,6 +24,8 @@ local Alchemy = {}
 
 -- Active buffs per player: potionId -> end time.
 local buffs: { [Player]: { [string]: number } } = {}
+-- When each potion can next be used, per player.
+local cooldowns: { [Player]: { [string]: number } } = {}
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -39,12 +41,12 @@ local function applyWalkSpeed(player: Player)
 	if not humanoid then
 		return
 	end
-	local extra = 0
+	local multiplier = 1
 	local active: { [string]: number } = buffs[player] or {}
 	for potionId in active do
-		extra += Potions[potionId].effect.walkSpeed or 0
+		multiplier *= Potions[potionId].effect.speedMultiplier or 1
 	end
-	humanoid.WalkSpeed = BASE_WALK_SPEED + extra
+	humanoid.WalkSpeed = BASE_WALK_SPEED * multiplier
 end
 
 local function buffBonuses(player: Player): { [string]: number }
@@ -53,7 +55,11 @@ local function buffBonuses(player: Player): { [string]: number }
 	for potionId in active do
 		local bonus: { [string]: number } = Potions[potionId].effect.bonus or {}
 		for key, value in bonus do
-			combined[key] = (combined[key] or 0) + value
+			if Bonuses.isMultiplier(key) then
+				combined[key] = (combined[key] or 1) * value
+			else
+				combined[key] = (combined[key] or 0) + value
+			end
 		end
 	end
 	return combined
@@ -99,47 +105,51 @@ local function use(player: Player, potionId: unknown)
 	if not potion or not PlayerData.isLoaded(player) then
 		return
 	end
+	local readyAt = (cooldowns[player] or {})[potionId] or 0
+	if now() < readyAt then
+		Notify.send(player, `{Items[potionId].displayName} ready in {math.ceil(readyAt - now())}s`, "info")
+		return
+	end
 	local effect = potion.effect
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or humanoid.Health <= 0 then
+		return
+	end
 
 	if effect.type == "heal" then
-		if not humanoid or humanoid.Health <= 0 or humanoid.Health >= humanoid.MaxHealth then
+		if humanoid.Health >= humanoid.MaxHealth then
 			Notify.send(player, "You're already at full health", "info")
 			return
 		end
 		if not PlayerData.takeItem(player, potionId, 1) then
 			return
 		end
-		humanoid.Health = math.min(humanoid.MaxHealth, humanoid.Health + (effect.amount or 0))
-		Notify.send(player, "Healed!", "success")
+		local amount = humanoid.MaxHealth * (effect.healFraction or 0)
+		humanoid.Health = math.min(humanoid.MaxHealth, humanoid.Health + amount)
+		Notify.send(player, `Healed {math.floor(amount + 0.5)} health!`, "success")
 	elseif effect.type == "buff" then
 		if not PlayerData.takeItem(player, potionId, 1) then
 			return
 		end
 		local active = buffs[player] or {}
 		buffs[player] = active
-		active[potionId] = now() + (effect.duration or 60)
+		active[potionId] = now() + (effect.duration or 10)
 		applyWalkSpeed(player)
 		publishBuffs(player)
-		PlayerData.changed(player) -- refresh max health / weapon from new bonuses
 		Notify.send(player, `{Items[potionId].displayName} active for {effect.duration}s`, "success")
-	elseif effect.type == "growAll" then
-		if Farming.growingCount(player) == 0 then
-			Notify.send(player, "Nothing is growing in your front garden", "info")
-			return
-		end
-		if not PlayerData.takeItem(player, potionId, 1) then
-			return
-		end
-		local count = Farming.growAll(player)
-		Notify.send(player, `{count} crops finished growing!`, "success")
+	else
+		return
 	end
+
+	local playerCooldowns = cooldowns[player] or {}
+	cooldowns[player] = playerCooldowns
+	playerCooldowns[potionId] = now() + potion.cooldown
 end
 
 local function expireLoop()
 	while true do
-		task.wait(1)
+		task.wait(0.5)
 		local time = now()
 		for player, active in buffs do
 			local changed = false
@@ -153,7 +163,6 @@ local function expireLoop()
 			if changed then
 				applyWalkSpeed(player)
 				publishBuffs(player)
-				PlayerData.changed(player)
 			end
 		end
 	end
@@ -176,6 +185,7 @@ function Alchemy.start()
 	end
 	Players.PlayerRemoving:Connect(function(player)
 		buffs[player] = nil
+		cooldowns[player] = nil
 	end)
 	task.spawn(expireLoop)
 end
