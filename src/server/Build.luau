@@ -63,7 +63,7 @@ local TRUNK = Color3.fromRGB(110, 75, 45)
 local LEAVES = Color3.fromRGB(70, 150, 60)
 
 -- A round-canopy tree standing on the ground at position.
-function Build.tree(parent: Instance, position: Vector3, scale: number?): Model
+function Build.tree(parent: Instance, position: Vector3, scale: number?, leafColor: Color3?): Model
 	local s = scale or 1
 	local tree = Instance.new("Model")
 	tree.Name = "Tree"
@@ -88,7 +88,7 @@ function Build.tree(parent: Instance, position: Vector3, scale: number?): Model
 			Shape = Enum.PartType.Ball,
 			Size = Vector3.new(size, size, size),
 			CFrame = CFrame.new(position + leaf[1]),
-			Color = LEAVES,
+			Color = leafColor or LEAVES,
 			Material = Enum.Material.Grass,
 			CanCollide = false,
 		}).Parent = tree

@@ -5,9 +5,9 @@
 -- the character created and moved home. Respawns after death go home too.
 
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Plots = require(script.Parent.Plots)
+local Remotes = require(script.Parent.Remotes)
 
 -- Spawn anyway if a client never reports ready (e.g. a broken loader).
 local READY_TIMEOUT = 45
@@ -97,15 +97,7 @@ end
 function Spawning.start()
 	Players.CharacterAutoLoads = false
 
-	local remotes = ReplicatedStorage:FindFirstChild("Remotes")
-	if not remotes then
-		remotes = Instance.new("Folder")
-		remotes.Name = "Remotes"
-		remotes.Parent = ReplicatedStorage
-	end
-	local clientReady = Instance.new("RemoteEvent")
-	clientReady.Name = "ClientReady"
-	clientReady.Parent = remotes
+	local clientReady = Remotes.event("ClientReady")
 	clientReady.OnServerEvent:Connect(spawnOnce)
 
 	Players.PlayerAdded:Connect(onPlayerAdded)

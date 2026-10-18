@@ -1,7 +1,8 @@
 -- Builds the Central Plaza at the world origin: a stone floor with a
 -- fountain, lamps and trees, the four shops on its outer ring, and a wooden
--- bridge out to every other island. Also handles the shop prompts. Seed and Sell shops work; Gear and Blueprint are
--- placeholders until equipment and building exist.
+-- bridge out to every other island. Handles the Sell Shop prompt. The Seed
+-- and Blueprint shops have an "OpenShop" prompt that opens a menu on the
+-- client (buying is handled by Shops).
 
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Crops = require(ReplicatedStorage.Shared.Crops)
 local Build = require(script.Parent.Build)
 local MapLayout = require(script.Parent.MapLayout)
+local Notify = require(script.Parent.Notify)
 local PlayerData = require(script.Parent.PlayerData)
 
 local TOP = MapLayout.PLAZA_TOP
@@ -96,23 +98,39 @@ local function buildStall(shop: ShopInfo, origin: CFrame): Model
 
 	local counterTop = TOP + 0.6 + 3.5
 	if shop.key == "SeedShop" then
-		-- One crate per crop on the counter, each with its own prompt.
+		-- Crates of produce on the counter (decoration).
 		local names = sortedCropNames()
 		for i, cropName in names do
-			local crop = Crops[cropName]
 			local x = (i - (#names + 1) / 2) * 4.5
-			local crate = Build.part({
-				Name = "Buy_" .. cropName,
+			Build.part({
+				Name = "Crate",
 				Size = Vector3.new(3, 2.5, 3),
 				CFrame = origin * CFrame.new(x, counterTop + 1.25, -4),
-				Color = crop.color,
+				Color = Crops[cropName].color,
 				Material = Enum.Material.WoodPlanks,
-			})
-			Build.prompt(crate, `Buy seed ({crop.seedPrice} coins)`, crop.displayName)
-			crate.Parent = stall
+			}).Parent = stall
 		end
-	elseif shop.key == "SellShop" then
+	elseif shop.key == "BlueprintShop" then
+		-- Rolled-up blueprints on the counter (decoration).
+		for i = -1, 1 do
+			Build.part({
+				Name = "Scroll",
+				Shape = Enum.PartType.Cylinder,
+				Size = Vector3.new(4, 1, 1),
+				CFrame = origin * CFrame.new(i * 4.5, counterTop + 0.5, -4),
+				Color = Color3.fromRGB(110, 150, 220),
+				Material = Enum.Material.Fabric,
+			}).Parent = stall
+		end
+	end
+
+	-- Shops with a menu get an "OpenShop" prompt; the client opens the menu.
+	if shop.key == "SellShop" then
 		Build.prompt(counter, "Sell all crops", "Sell Shop").Name = "Sell"
+	elseif shop.key ~= "GearShop" then
+		local prompt = Build.prompt(counter, "Browse", shop.displayName)
+		prompt.Name = "OpenShop"
+		prompt:SetAttribute("Shop", shop.key)
 	end
 
 	return stall
@@ -265,17 +283,6 @@ local function buildPlaza()
 	plaza.Parent = workspace
 end
 
-local function buySeed(player: Player, crate: Instance)
-	local cropName = string.match(crate.Name, "^Buy_(.+)$")
-	local crop = if cropName then Crops[cropName] else nil
-	if not crop then
-		return
-	end
-	if PlayerData.spendCoins(player, crop.seedPrice) then
-		PlayerData.addSeeds(player, cropName :: string, 1)
-	end
-end
-
 local function sellAll(player: Player)
 	local sold = PlayerData.takeAllCrops(player)
 	local total = 0
@@ -287,6 +294,9 @@ local function sellAll(player: Player)
 	end
 	if total > 0 then
 		PlayerData.addCoins(player, total)
+		Notify.send(player, `Sold crops for {total} coins`, "success")
+	else
+		Notify.send(player, "You have no crops to sell. Harvest some first!", "error")
 	end
 end
 
@@ -294,11 +304,8 @@ local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	if not prompt:IsDescendantOf(plaza) or not PlayerData.isLoaded(player) then
 		return
 	end
-	local parent = prompt.Parent
 	if prompt.Name == "Sell" then
 		sellAll(player)
-	elseif parent and string.match(parent.Name, "^Buy_") then
-		buySeed(player, parent)
 	end
 end
 

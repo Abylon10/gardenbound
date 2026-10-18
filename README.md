@@ -41,6 +41,12 @@ press **E** to harvest, then follow the path to the Central Plaza and sell
 at the **Sell Shop**. Buy more seeds from the crates in the **Seed Shop**. Pick which seed to plant in the bar at the
 bottom of the screen.
 
+Back garden: buy saplings at the Seed Shop, plant them on the spots in your
+back garden, and chop grown trees for wood. Buy blueprints at the Blueprint
+Shop, then build them at home: the house upgrade prompt is by the door and
+decorations go on the yellow pads around the house. Open the **Bag** button
+on the left to see everything you have.
+
 Saving needs **Game Settings → Security → Enable Studio Access to API
 Services** turned on (and the place published). Without it the game
 still runs, it just doesn't save.

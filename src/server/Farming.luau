@@ -12,8 +12,10 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Crops = require(ReplicatedStorage.Shared.Crops)
+local Items = require(ReplicatedStorage.Shared.Items)
 local PlayerData = require(script.Parent.PlayerData)
 local Plots = require(script.Parent.Plots)
+local Remotes = require(script.Parent.Remotes)
 
 local MIN_CROP_SIZE = 1
 local MAX_CROP_SIZE = 5
@@ -123,6 +125,9 @@ local function harvest(player: Player, tile: BasePart)
 end
 
 local function onTilePrompt(player: Player, tile: BasePart)
+	if tile:GetAttribute("Locked") then
+		return
+	end
 	if tile:GetAttribute("Ready") then
 		harvest(player, tile)
 	elseif not tile:GetAttribute("Crop") then
@@ -171,19 +176,17 @@ local function restoreGarden(player: Player)
 end
 
 function Farming.start()
-	local remotes = ReplicatedStorage:FindFirstChild("Remotes")
-	if not remotes then
-		remotes = Instance.new("Folder")
-		remotes.Name = "Remotes"
-		remotes.Parent = ReplicatedStorage
-	end
-	local selectSeed = Instance.new("RemoteEvent")
-	selectSeed.Name = "SelectSeed"
-	selectSeed.Parent = remotes
+	local selectSeed = Remotes.event("SelectSeed")
 
-	selectSeed.OnServerEvent:Connect(function(player, cropName)
-		if type(cropName) == "string" and Crops[cropName] then
-			player:SetAttribute("SelectedSeed", cropName)
+	-- Selects a crop seed for the front garden or a sapling for the back.
+	selectSeed.OnServerEvent:Connect(function(player, id)
+		if type(id) ~= "string" then
+			return
+		end
+		if Crops[id] then
+			player:SetAttribute("SelectedSeed", id)
+		elseif Items[id] and Items[id].kind == "sapling" then
+			player:SetAttribute("SelectedSapling", id)
 		end
 	end)
 
@@ -200,11 +203,11 @@ function Farming.start()
 
 	ProximityPromptService.PromptTriggered:Connect(onPromptTriggered)
 
-	Plots.onPlotReleased = function(plot)
+	Plots.onRelease(function(plot)
 		for _, tile in (plot :: any).FrontGarden:GetChildren() do
 			clearTile(tile)
 		end
-	end
+	end)
 end
 
 return Farming

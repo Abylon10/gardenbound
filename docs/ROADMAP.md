@@ -23,10 +23,14 @@ Each phase should be playable on its own before the next starts.
 - [x] Save planted crops between sessions (they keep growing offline)
 - [x] Hide other players' plot prompts on the client
 
-### Phase 2: Back garden and building
-- Tree saplings → grow → chop → wood
-- Starter house on each plot
-- Place/remove furniture and walls using wood
+### Phase 2: Back garden and building (done)
+- [x] Saplings (Oak, Pine, Maple) from the Seed Shop → grow → chop → wood
+- [x] Blueprint Shop: house upgrades II and III, five decorations
+- [x] House level 2: porch, chimney, +4 garden tiles; level 3: second
+      story, +2 tree spots
+- [x] Decorations built with wood on spots by the house
+- [x] Shop menus, Bag (inventory), toast messages
+- [ ] Free placement of furniture inside the house (later)
 
 ### Phase 3: Wilderness and pets
 - One zone (Meadow): slimes, rabbits, goblins
