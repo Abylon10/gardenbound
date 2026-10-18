@@ -32,11 +32,14 @@ Each phase should be playable on its own before the next starts.
 - [x] Shop menus, Bag (inventory), toast messages
 - [ ] Free placement of furniture inside the house (later)
 
-### Phase 3: Wilderness and pets
-- One zone (Meadow): slimes, rabbits, goblins
-- Basic combat (weapon swing, enemy HP, respawn)
-- Eggs drop from enemies; hatch into farm pets or battle pets
-- 5–10 pets, with rarity and one ability each
+### Phase 3: Wilderness and pets (done)
+- [x] Meadow zone beyond the Wilderness Gate: slimes, rabbits, goblins
+- [x] Combat: Wooden Sword tool, enemy health bars, respawn at home
+- [x] Drops: coins, Slime Goo, Rabbit Fluff, Goblin Tooth, Common and
+      Forest eggs
+- [x] 10 pets (5 farm, 5 battle) in 4 rarities; hatch from the Bag, equip
+      one of each; equipped pets follow you and give bonuses
+- [ ] Pet levels (later)
 
 ### Phase 4: Dungeon, forging, potions
 - One dungeon (Abandoned Mine): copper, iron, monster materials

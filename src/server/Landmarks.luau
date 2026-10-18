@@ -138,7 +138,7 @@ local function buildWildernessGate(parent: Instance)
 		Color = Color3.fromRGB(60, 150, 70),
 		Material = Enum.Material.Fabric,
 	}).Parent = gate
-	Build.sign(beam, "Wilderness Gate", "Coming soon", 5)
+	Build.sign(beam, "Wilderness Gate", "The Meadow lies beyond. Bring your sword!", 5)
 
 	treesAround(gate, origin, {
 		Vector3.new(-20, 0, 10),
@@ -147,7 +147,6 @@ local function buildWildernessGate(parent: Instance)
 		Vector3.new(28, 0, -8),
 		Vector3.new(-12, 0, 28),
 		Vector3.new(12, 0, 28),
-		Vector3.new(0, 0, 18),
 	})
 	gate.Parent = parent
 end

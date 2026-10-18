@@ -46,6 +46,9 @@ function Islands.start()
 	for _, island in MapLayout.islands() do
 		fillIsland(terrain, MapLayout.pointAt(island.angle, island.radius), island.islandRadius)
 	end
+	for _, zone in MapLayout.zones() do
+		fillIsland(terrain, MapLayout.pointAt(zone.angle, zone.radius), zone.islandRadius)
+	end
 end
 
 return Islands

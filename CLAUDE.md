@@ -48,6 +48,19 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   prompt). `HomeBuilder` builds house levels and decorations.
 - `Forestry`: back-garden `TreeSpots`; saplings grow on real time
   (saved in `trees`), chop for Wood.
+- `Bonuses`: sums bonus keys (cropGrowth, treeGrowth, doubleHarvest,
+  sellPrice, wood, damage, maxHealth, crit, defense) from sources (pets;
+  potions/armor add more with `Bonuses.addSource`) and plugs them into
+  the Farming/Forestry/Plaza/Enemies hooks.
+- `Enemies`: server-moved anchored enemy models per zone
+  (`Enemies.registerZone`), wander/chase/attack, `findInRange`,
+  `damage`, `onKilled`. Stats in `shared/EnemyTypes`.
+- `Combat`: gives the equipped weapon as a Tool, swings hit enemies in
+  front, kill rewards (coins + drops), max health from bonuses.
+- `PetSystem`: HatchEgg/EquipPet remotes, follower pets on the
+  character, publishes `Pets`/`EquippedPets` JSON. Defs in `shared/Pets`.
+- `Wilderness`: the Meadow zone island beyond the Wilderness Gate
+  (`MapLayout.ZONES`), its bridge, and its enemy zone.
 - `Notify.send(player, text, kind)` shows a toast; `Remotes.event(name)`
   gets or creates a RemoteEvent.
 - Plot reset on leave: register with `Plots.onRelease`.
@@ -70,7 +83,8 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - Shared definitions: `Crops`, `Items` (stackables), `Trees`,
   `Blueprints`, `ShopCatalog`. Balance numbers live there.
 - Client UI: `UI` helpers, `Toasts`, `ShopMenu`, `Inventory` (Bag, tabs
-  via `Inventory.addTab`), `SeedBar` (crops + saplings), `PlotPrompts`.
+  via `Inventory.addTab`, item buttons via `Inventory.addItemAction`),
+  `PetsUI`, `SeedBar` (crops + saplings), `PlotPrompts`.
 - Remotes live in `ReplicatedStorage.Remotes`, created by the server.
   Validate every remote argument on the server.
 

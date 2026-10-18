@@ -155,6 +155,50 @@ function Build.fence(parent: Instance, origin: CFrame, from: Vector3, to: Vector
 	end
 end
 
+-- A wooden bridge with railings from one point to another (Y ignored;
+-- the deck top sits at deckTop).
+function Build.bridge(parent: Instance, name: string, from: Vector3, to: Vector3, deckTop: number): Model
+	local bridge = Instance.new("Model")
+	bridge.Name = name
+	local a = Vector3.new(from.X, 0, from.Z)
+	local b = Vector3.new(to.X, 0, to.Z)
+	local length = (b - a).Magnitude
+	local frame = CFrame.lookAt((a + b) / 2, b)
+	local width = 10
+
+	Build.part({
+		Name = "Deck",
+		Size = Vector3.new(width, 1, length),
+		CFrame = frame * CFrame.new(0, deckTop - 0.5, 0),
+		Color = WOOD,
+		Material = Enum.Material.WoodPlanks,
+	}).Parent = bridge
+
+	for _, x in { -width / 2 + 0.3, width / 2 - 0.3 } do
+		Build.part({
+			Name = "Rail",
+			Size = Vector3.new(0.5, 0.5, length),
+			CFrame = frame * CFrame.new(x, deckTop + 3, 0),
+			Color = WOOD,
+			Material = Enum.Material.Wood,
+		}).Parent = bridge
+		local posts = math.max(1, math.floor(length / 8))
+		for i = 0, posts do
+			local z = -length / 2 + length * (i / posts)
+			Build.part({
+				Name = "Post",
+				Size = Vector3.new(0.8, 4, 0.8),
+				CFrame = frame * CFrame.new(x, deckTop + 1.5, z),
+				Color = WOOD,
+				Material = Enum.Material.Wood,
+			}).Parent = bridge
+		end
+	end
+
+	bridge.Parent = parent
+	return bridge
+end
+
 -- A small wooden sign post with a colored board and a floating label.
 function Build.signPost(parent: Instance, position: Vector3, text: string, color: Color3)
 	local post = Build.part({

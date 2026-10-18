@@ -10,6 +10,11 @@ local Spawning = require(script.Spawning)
 local Shops = require(script.Shops)
 local Homestead = require(script.Homestead)
 local Forestry = require(script.Forestry)
+local Bonuses = require(script.Bonuses)
+local Enemies = require(script.Enemies)
+local Combat = require(script.Combat)
+local PetSystem = require(script.PetSystem)
+local Wilderness = require(script.Wilderness)
 
 -- Terrain first, so everything else is built on finished islands.
 Islands.start()
@@ -21,6 +26,11 @@ Landmarks.start()
 Shops.start()
 Homestead.start()
 Forestry.start()
+Bonuses.start()
+Enemies.start()
+Combat.start()
+PetSystem.start()
+Wilderness.start()
 -- Last: characters only spawn once the map and plots exist.
 Spawning.start()
 
