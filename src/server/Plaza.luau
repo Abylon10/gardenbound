@@ -1,6 +1,6 @@
--- Builds the Central Plaza at the world origin: a stone floor, the four
--- shops on its outer ring, and paths out to each player plot. Also handles
--- the shop prompts. Seed and Sell shops work; Gear and Blueprint are
+-- Builds the Central Plaza at the world origin: a stone floor with a
+-- fountain, lamps and trees, the four shops on its outer ring, and a wooden
+-- bridge out to every other island. Also handles the shop prompts. Seed and Sell shops work; Gear and Blueprint are
 -- placeholders until equipment and building exist.
 
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -118,6 +118,113 @@ local function buildStall(shop: ShopInfo, origin: CFrame): Model
 	return stall
 end
 
+local function cylinder(props: { [string]: any }, center: Vector3, height: number, diameter: number): Part
+	props.Shape = Enum.PartType.Cylinder
+	props.Size = Vector3.new(height, diameter, diameter)
+	props.CFrame = CFrame.new(center) * CFrame.Angles(0, 0, math.rad(90))
+	return Build.part(props)
+end
+
+-- Stone fountain in the middle of the plaza with the plaza's name above it.
+local function buildFountain(parent: Instance)
+	local fountain = Instance.new("Model")
+	fountain.Name = "Fountain"
+
+	cylinder({ Name = "Rim", Color = Color3.fromRGB(150, 145, 135), Material = Enum.Material.Cobblestone }, Vector3.new(0, TOP + 1.25, 0), 2.5, 26).Parent =
+		fountain
+	cylinder({
+		Name = "Water",
+		Color = Color3.fromRGB(70, 150, 220),
+		Material = Enum.Material.Glass,
+		Transparency = 0.25,
+	}, Vector3.new(0, TOP + 1.6, 0), 2.2, 22).Parent = fountain
+	cylinder({ Name = "Pillar", Color = STONE, Material = Enum.Material.Marble }, Vector3.new(0, TOP + 5, 0), 8, 3).Parent = fountain
+	cylinder({ Name = "Bowl", Color = STONE, Material = Enum.Material.Marble }, Vector3.new(0, TOP + 9.5, 0), 1, 9).Parent = fountain
+	cylinder({
+		Name = "BowlWater",
+		Color = Color3.fromRGB(70, 150, 220),
+		Material = Enum.Material.Glass,
+		Transparency = 0.25,
+	}, Vector3.new(0, TOP + 10.1, 0), 0.4, 7.5).Parent = fountain
+
+	local sprout = Build.part({
+		Name = "Sprout",
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(4, 4, 4),
+		CFrame = CFrame.new(0, TOP + 12.5, 0),
+		Color = Color3.fromRGB(110, 200, 90),
+		Material = Enum.Material.Grass,
+	})
+	sprout.Parent = fountain
+	Build.sign(sprout, "Central Plaza", nil, 5)
+
+	fountain.Parent = parent
+end
+
+-- Lamps around the plaza edge and trees in round planters, placed between
+-- the bridges so walkways stay clear.
+local function buildGreenery(parent: Instance)
+	local greenery = Instance.new("Folder")
+	greenery.Name = "Greenery"
+	for _, angle in { 12, 50, 92, 136, 180, 224, 268, 325 } do
+		local position = MapLayout.pointAt(angle, MapLayout.PLAZA_RADIUS - 3)
+		Build.lamp(greenery, position + Vector3.new(0, TOP, 0))
+	end
+	for _, angle in { 92, 180, 268 } do
+		local position = MapLayout.pointAt(angle, 30)
+		cylinder({ Name = "Planter", Color = Color3.fromRGB(150, 145, 135), Material = Enum.Material.Cobblestone }, position + Vector3.new(0, TOP + 0.75, 0), 1.5, 9).Parent =
+			greenery
+		cylinder({ Name = "Soil", Color = Color3.fromRGB(90, 60, 40), Material = Enum.Material.Ground }, position + Vector3.new(0, TOP + 1.1, 0), 1.5, 7.5).Parent =
+			greenery
+		Build.tree(greenery, position + Vector3.new(0, TOP + 1.5, 0), 0.8)
+	end
+	greenery.Parent = parent
+end
+
+-- A wooden bridge with railings from the plaza edge onto an island.
+local function buildBridge(parent: Instance, island: MapLayout.Island)
+	local bridge = Instance.new("Model")
+	bridge.Name = "Bridge_" .. island.name
+	local startRadius = MapLayout.PLAZA_RADIUS - 2
+	local endRadius = island.radius - island.islandRadius + 6
+	local length = endRadius - startRadius
+	local middle = MapLayout.pointAt(island.angle, (startRadius + endRadius) / 2)
+	-- Local -Z points back toward the plaza; the deck runs along Z.
+	local frame = CFrame.lookAt(middle, Vector3.zero)
+	local width = 10
+
+	Build.part({
+		Name = "Deck",
+		Size = Vector3.new(width, 1, length),
+		CFrame = frame * CFrame.new(0, TOP - 0.5, 0),
+		Color = WOOD,
+		Material = Enum.Material.WoodPlanks,
+	}).Parent = bridge
+
+	for _, x in { -width / 2 + 0.3, width / 2 - 0.3 } do
+		Build.part({
+			Name = "Rail",
+			Size = Vector3.new(0.5, 0.5, length),
+			CFrame = frame * CFrame.new(x, TOP + 3, 0),
+			Color = WOOD,
+			Material = Enum.Material.Wood,
+		}).Parent = bridge
+		local posts = math.floor(length / 8)
+		for i = 0, posts do
+			local z = -length / 2 + length * (i / posts)
+			Build.part({
+				Name = "Post",
+				Size = Vector3.new(0.8, 4, 0.8),
+				CFrame = frame * CFrame.new(x, TOP + 1.5, z),
+				Color = WOOD,
+				Material = Enum.Material.Wood,
+			}).Parent = bridge
+		end
+	end
+
+	bridge.Parent = parent
+end
+
 local function buildPlaza()
 	plaza = Instance.new("Model")
 	plaza.Name = "Plaza"
@@ -134,17 +241,8 @@ local function buildPlaza()
 	floor.Parent = plaza
 	plaza.PrimaryPart = floor
 
-	local emblem = Build.part({
-		Name = "Emblem",
-		Shape = Enum.PartType.Cylinder,
-		Size = Vector3.new(0.2, 28, 28),
-		CFrame = CFrame.new(0, TOP + 0.1, 0) * CFrame.Angles(0, 0, math.rad(90)),
-		Color = Color3.fromRGB(120, 170, 110),
-		Material = Enum.Material.Slate,
-		CanCollide = false,
-	})
-	emblem.Parent = plaza
-	Build.sign(emblem, "Central Plaza", nil, 14)
+	buildFountain(plaza)
+	buildGreenery(plaza)
 
 	local shops = Instance.new("Folder")
 	shops.Name = "Shops"
@@ -154,21 +252,11 @@ local function buildPlaza()
 		buildStall(shop, origin).Parent = shops
 	end
 
-	-- Stone paths from the plaza edge to the front of each plot.
-	local paths = Instance.new("Folder")
-	paths.Name = "Paths"
-	paths.Parent = plaza
-	local pathStart = radius - 2
-	local pathEnd = MapLayout.PLOT_RING_RADIUS - MapLayout.PLOT_SIZE / 2 + 2
-	for i, angle in MapLayout.PLOT_ANGLES do
-		local middle = MapLayout.pointAt(angle, (pathStart + pathEnd) / 2)
-		Build.part({
-			Name = "Path" .. i,
-			Size = Vector3.new(10, 1, pathEnd - pathStart),
-			CFrame = CFrame.lookAt(middle, Vector3.zero) * CFrame.new(0, 0.6, 0),
-			Color = STONE,
-			Material = Enum.Material.Cobblestone,
-		}).Parent = paths
+	local bridges = Instance.new("Folder")
+	bridges.Name = "Bridges"
+	bridges.Parent = plaza
+	for _, island in MapLayout.islands() do
+		buildBridge(bridges, island)
 	end
 
 	plaza.Parent = workspace

@@ -21,15 +21,19 @@ Shared hub, individual growth.
 | Gear Shop | Weapons, armor, accessories |
 | Blueprint Shop | House blueprints, crafting recipes, upgrades |
 
-## What's built so far (code placeholders)
+## What's built (code placeholders)
 Positions are in `src/server/MapLayout.luau`.
 
-| Thing | Where |
+| Thing | Where / what |
 |---|---|
-| Plaza | radius 60, centered on the origin |
-| Shops | ring radius 48: Seed NE (45°), Sell SE (135°), Gear SW (225°), Blueprint NW (315°) |
-| Plots | ring radius 180 at 70°–290°, front garden facing the plaza, stone path to each |
-| Free for later | north arc (0° ± 60°) for the Dungeon Portal and Wilderness Gate |
+| Sea | Terrain water from y -30 to -3, sand floor, 720×720 studs |
+| Central Plaza | Island radius 68, stone floor radius 60, fountain, 8 lamps, 3 planter trees |
+| Shops | Ring radius 48: Seed NE (45°), Sell SE (135°), Gear SW (225°), Blueprint NW (315°) |
+| Player islands | Ring radius 220 at 70°–290°, island radius 72. Each has a fenced Front Garden (12 soil tiles, yellow sign) facing the plaza, a house with a colored roof, a fenced Back Garden (green sign, saplings), and trees |
+| Dungeon Portal | North (0°), island radius 42. Stone arch, purple glowing gateway, torches. Not usable yet |
+| Wilderness Gate | North-east (27°), island radius 42. Log gate with banner. Not usable yet |
+| Bridges | Wooden bridge with railings from the plaza to every island |
 
-Islands, water, bridges, and detailed shop/house models are still to be
-built in Studio.
+The template Baseplate is removed when the game starts, because it would
+sit above the water. Detailed models (real shop and house art, docks,
+banners) can replace the placeholder parts later in Studio.

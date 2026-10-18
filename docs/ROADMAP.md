@@ -14,6 +14,9 @@ Each phase should be playable on its own before the next starts.
 - [x] Plant → grow → harvest → sell loop (Carrot, Tomato, Pumpkin)
 - [x] Central Plaza with Seed, Sell, Gear, and Blueprint shops on its
       outer ring; plots in a ring around it (see `docs/map-design.md`)
+- [x] Island map from the initial design: sea, plaza island with
+      fountain, 6 player islands with house and both gardens, bridges,
+      Dungeon Portal and Wilderness Gate islands (decoration)
 - [x] Seed shop and sell shop work, coins on the leaderboard
 - [x] Seed bar UI to pick the seed to plant
 - [x] Save coins, seeds, and harvested crops (DataStore)
