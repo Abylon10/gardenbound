@@ -133,15 +133,18 @@ end
 local function buildPlot(index: number, origin: CFrame): Model
 	local plot = Instance.new("Model")
 	plot.Name = "Plot" .. index
+	-- Always sent to every client and never streamed out, so the ground and
+	-- garden are there as soon as a player joins.
+	plot.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 
 	local ground = Build.part({
 		Name = "Ground",
 		Size = Vector3.new(PLOT_SIZE, 1, PLOT_SIZE),
 		CFrame = origin * CFrame.new(0, 0.5, 0),
-		-- The island terrain is the visible ground; this part just marks the plot.
+		-- The island terrain is the visible ground. This invisible part sits
+		-- exactly at grass level so there is always solid ground, even before
+		-- the terrain has streamed in on the client.
 		Transparency = 1,
-		CanCollide = false,
-		CanQuery = false,
 	})
 	ground.Parent = plot
 	plot.PrimaryPart = ground
