@@ -133,15 +133,18 @@ end
 local function buildPlot(index: number, origin: CFrame): Model
 	local plot = Instance.new("Model")
 	plot.Name = "Plot" .. index
+	-- Always sent to every client and never streamed out, so the ground and
+	-- garden are there as soon as a player joins.
+	plot.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 
 	local ground = Build.part({
 		Name = "Ground",
 		Size = Vector3.new(PLOT_SIZE, 1, PLOT_SIZE),
 		CFrame = origin * CFrame.new(0, 0.5, 0),
-		-- The island terrain is the visible ground; this part just marks the plot.
+		-- The island terrain is the visible ground. This invisible part sits
+		-- exactly at grass level so there is always solid ground, even before
+		-- the terrain has streamed in on the client.
 		Transparency = 1,
-		CanCollide = false,
-		CanQuery = false,
 	})
 	ground.Parent = plot
 	plot.PrimaryPart = ground
@@ -197,19 +200,6 @@ local function setOwner(plot: Model, player: Player?)
 	label.Text = if player then `{player.DisplayName}'s Homestead` else "Empty plot"
 end
 
-local function teleportHome(player: Player, character: Model)
-	local plot = ownerOf[player]
-	if not plot then
-		return
-	end
-	if not character:WaitForChild("HumanoidRootPart", 5) then
-		return
-	end
-	-- Wait a frame so the default spawn placement doesn't override this.
-	task.wait()
-	character:PivotTo(((plot :: any).SpawnPoint :: BasePart).CFrame)
-end
-
 local function claimPlot(player: Player)
 	for _, plot in plotsFolder:GetChildren() do
 		if plot:GetAttribute("OwnerId") == 0 then
@@ -220,14 +210,6 @@ local function claimPlot(player: Player)
 	end
 	if not ownerOf[player] then
 		warn("[Plots] No free plot for", player.Name)
-		return
-	end
-
-	player.CharacterAdded:Connect(function(character)
-		teleportHome(player, character)
-	end)
-	if player.Character then
-		teleportHome(player, player.Character)
 	end
 end
 
@@ -237,6 +219,12 @@ Plots.onPlotReleased = nil :: ((plot: Model) -> ())?
 
 function Plots.getPlot(player: Player): Model?
 	return ownerOf[player]
+end
+
+-- Where the player's character should stand when it spawns.
+function Plots.getSpawnPoint(player: Player): BasePart?
+	local plot = ownerOf[player]
+	return if plot then (plot :: any).SpawnPoint :: BasePart else nil
 end
 
 function Plots.getOwner(plot: Instance): Player?

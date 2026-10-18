@@ -228,6 +228,9 @@ end
 local function buildPlaza()
 	plaza = Instance.new("Model")
 	plaza.Name = "Plaza"
+	-- Always loaded on every client, like the plots, so the plaza floor and
+	-- bridges are never missing underfoot.
+	plaza.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 
 	local radius = MapLayout.PLAZA_RADIUS
 	local floor = Build.part({

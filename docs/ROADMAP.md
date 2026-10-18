@@ -9,7 +9,7 @@ materials. Every system feeds the others.
 
 Each phase should be playable on its own before the next starts.
 
-### Phase 1: Front garden economy (in progress)
+### Phase 1: Front garden economy (done)
 - [x] Plot per player (6 plots, generated at runtime)
 - [x] Plant → grow → harvest → sell loop (Carrot, Tomato, Pumpkin)
 - [x] Central Plaza with Seed, Sell, Gear, and Blueprint shops on its
@@ -20,8 +20,8 @@ Each phase should be playable on its own before the next starts.
 - [x] Seed shop and sell shop work, coins on the leaderboard
 - [x] Seed bar UI to pick the seed to plant
 - [x] Save coins, seeds, and harvested crops (DataStore)
-- [ ] Save planted crops between sessions
-- [ ] Hide other players' plot prompts on the client
+- [x] Save planted crops between sessions (they keep growing offline)
+- [x] Hide other players' plot prompts on the client
 
 ### Phase 2: Back garden and building
 - Tree saplings → grow → chop → wood

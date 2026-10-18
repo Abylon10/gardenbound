@@ -9,6 +9,7 @@ A Roblox game. Scripts live in this repo and sync into Roblox Studio with [Rojo]
 | `src/server`  | `ServerScriptService.Server`                      | server  |
 | `src/client`  | `StarterPlayer.StarterPlayerScripts.Client`       | client  |
 | `src/shared`  | `ReplicatedStorage.Shared`                        | both    |
+| `src/first`   | `ReplicatedFirst` (loading screen)                | client  |
 
 File suffixes: `.server.luau` = Script, `.client.luau` = LocalScript, plain `.luau` = ModuleScript.
 
@@ -43,6 +44,9 @@ bottom of the screen.
 Saving needs **Game Settings → Security → Enable Studio Access to API
 Services** turned on (and the place published). Without it the game
 still runs, it just doesn't save.
+
+If `default.project.json` changes in a pull, stop `rojo serve` (Ctrl+C)
+and start it again so Rojo picks up the new folders.
 
 Only scripts are synced. Parts, terrain, and models built in Studio stay in the
 place file on Roblox, so publish the place from Studio as usual.
