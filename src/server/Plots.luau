@@ -197,33 +197,6 @@ local function setOwner(plot: Model, player: Player?)
 	label.Text = if player then `{player.DisplayName}'s Homestead` else "Empty plot"
 end
 
-local function teleportHome(player: Player, character: Model)
-	local plot = ownerOf[player]
-	if not plot then
-		return
-	end
-	local root = character:WaitForChild("HumanoidRootPart", 5) :: BasePart?
-	if not root then
-		return
-	end
-	local target = ((plot :: any).SpawnPoint :: BasePart).CFrame
-
-	-- With StreamingEnabled the client only has the map near the player.
-	-- Hold the character still until the home island has streamed in,
-	-- otherwise they fall through ground the client doesn't have yet.
-	root.Anchored = true
-	-- Wait a frame so the default spawn placement doesn't override this.
-	task.wait()
-	character:PivotTo(target)
-	pcall(function()
-		player:RequestStreamAroundAsync(target.Position, 10)
-	end)
-	task.wait(0.5)
-	if root.Parent then
-		root.Anchored = false
-	end
-end
-
 local function claimPlot(player: Player)
 	for _, plot in plotsFolder:GetChildren() do
 		if plot:GetAttribute("OwnerId") == 0 then
@@ -234,14 +207,6 @@ local function claimPlot(player: Player)
 	end
 	if not ownerOf[player] then
 		warn("[Plots] No free plot for", player.Name)
-		return
-	end
-
-	player.CharacterAdded:Connect(function(character)
-		teleportHome(player, character)
-	end)
-	if player.Character then
-		teleportHome(player, player.Character)
 	end
 end
 
@@ -251,6 +216,12 @@ Plots.onPlotReleased = nil :: ((plot: Model) -> ())?
 
 function Plots.getPlot(player: Player): Model?
 	return ownerOf[player]
+end
+
+-- Where the player's character should stand when it spawns.
+function Plots.getSpawnPoint(player: Player): BasePart?
+	local plot = ownerOf[player]
+	return if plot then (plot :: any).SpawnPoint :: BasePart else nil
 end
 
 function Plots.getOwner(plot: Instance): Player?

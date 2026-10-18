@@ -7,7 +7,8 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - Scripts are Luau, synced into Studio with Rojo (`default.project.json`).
   Rojo version is pinned in `rokit.toml`.
 - `src/server` → ServerScriptService.Server, `src/client` →
-  StarterPlayerScripts.Client, `src/shared` → ReplicatedStorage.Shared.
+  StarterPlayerScripts.Client, `src/shared` → ReplicatedStorage.Shared,
+  `src/first` → ReplicatedFirst (the loading screen).
 - Suffixes: `.server.luau` Script, `.client.luau` LocalScript, `.luau` ModuleScript.
 - Only code lives here. Parts/terrain/models live in the Studio place file.
 - Studio's built-in MCP server is connected to Claude Desktop on Justin
@@ -39,6 +40,14 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   always checks plot ownership.
 - `Landmarks` builds the Dungeon Portal and Wilderness Gate islands
   (decoration only for now).
+- `Spawning` turns off `CharacterAutoLoads`. While the loading screen is
+  up, the player's ReplicationFocus is their spawn point so their island
+  streams in; the client fires `ClientReady` once it has ground there,
+  then the server spawns the character at home. Respawns go home too.
+  (StreamingEnabled is on, so never move a character somewhere the
+  client may not have streamed yet without waiting for it.)
+- `src/first/LoadingScreen.client.luau` shows the loading screen and
+  drives the steps above.
 - `Build` has the shared part/prompt/sign/tree/lamp/fence helpers.
 - `src/shared/Crops.luau` is the single list of crops and their numbers.
 - Remotes live in `ReplicatedStorage.Remotes`, created by the server.
