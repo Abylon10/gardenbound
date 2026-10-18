@@ -7,6 +7,9 @@ local Farming = require(script.Farming)
 local Plaza = require(script.Plaza)
 local Landmarks = require(script.Landmarks)
 local Spawning = require(script.Spawning)
+local Shops = require(script.Shops)
+local Homestead = require(script.Homestead)
+local Forestry = require(script.Forestry)
 
 -- Terrain first, so everything else is built on finished islands.
 Islands.start()
@@ -15,6 +18,9 @@ PlayerData.start()
 Plots.start()
 Plaza.start()
 Landmarks.start()
+Shops.start()
+Homestead.start()
+Forestry.start()
 -- Last: characters only spawn once the map and plots exist.
 Spawning.start()
 

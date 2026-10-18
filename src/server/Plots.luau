@@ -1,11 +1,19 @@
 -- Builds the homestead plots on the ring of player islands around the
--- Central Plaza and gives each player one. Each plot has a fenced front
--- garden of soil tiles facing the plaza, a house, a fenced back garden
--- (decoration until trees are added), trees, and a name sign.
+-- Central Plaza and gives each player one. Each plot has:
+--   FrontGarden  soil tiles facing the plaza (Tile13-16 need house level 2)
+--   TreeSpots    back-garden tree spots (Spot5-6 need house level 3)
+--   BuildSpots   one pad per decoration blueprint, next to the house
+--   HouseUpgrade invisible part by the door with the upgrade prompt
+--   House        rebuilt by Homestead when the level changes
+--   Decor        fences, signs, and trees
+-- Parts that need a higher house level carry a "RequiredLevel" attribute;
+-- Homestead locks and unlocks them.
 
 local Players = game:GetService("Players")
 
+local Blueprints = require(game:GetService("ReplicatedStorage").Shared.Blueprints)
 local Build = require(script.Parent.Build)
+local HomeBuilder = require(script.Parent.HomeBuilder)
 local MapLayout = require(script.Parent.MapLayout)
 
 local PLOT_SIZE = MapLayout.PLOT_SIZE
@@ -13,11 +21,21 @@ local TILE_SIZE = 8
 local TILE_COLUMNS = { -15, -5, 5, 15 }
 -- Negative Z is toward the plaza, so the front garden sits on that side.
 local TILE_ROWS = { -30, -20, -10 }
+-- Extra row unlocked by house level 2; named Tile13-16 so saved tiles keep
+-- their names.
+local EXTRA_TILE_ROW = -40
+local TREE_SPOTS = {
+	{ position = Vector3.new(14, 0, 16), level = 1 },
+	{ position = Vector3.new(32, 0, 16), level = 1 },
+	{ position = Vector3.new(14, 0, 32), level = 1 },
+	{ position = Vector3.new(32, 0, 32), level = 1 },
+	{ position = Vector3.new(23, 0, 16), level = 3 },
+	{ position = Vector3.new(23, 0, 32), level = 3 },
+}
 local GROUND_TOP = MapLayout.GROUND_TOP
 
 local FRONT_GARDEN_COLOR = Color3.fromRGB(245, 200, 60)
 local BACK_GARDEN_COLOR = Color3.fromRGB(90, 190, 90)
-local WALL_COLOR = Color3.fromRGB(235, 215, 180)
 local ROOF_COLORS = {
 	Color3.fromRGB(215, 90, 120),
 	Color3.fromRGB(60, 150, 160),
@@ -31,53 +49,6 @@ local Plots = {}
 
 local plotsFolder: Folder
 local ownerOf: { [Player]: Model } = {}
-
--- A closed house with a peaked roof. The roof is a block turned 45 degrees,
--- so its lower half hides inside the walls.
-local function buildHouse(parent: Instance, origin: CFrame, roofColor: Color3)
-	local house = Instance.new("Model")
-	house.Name = "House"
-	local width, depth, height = 22, 18, 12
-
-	Build.part({
-		Name = "Walls",
-		Size = Vector3.new(width, height, depth),
-		CFrame = origin * CFrame.new(0, GROUND_TOP + height / 2, 0),
-		Color = WALL_COLOR,
-		Material = Enum.Material.WoodPlanks,
-	}).Parent = house
-
-	local roofSide = (depth + 3) / math.sqrt(2)
-	Build.part({
-		Name = "Roof",
-		Size = Vector3.new(width + 2, roofSide, roofSide),
-		CFrame = origin * CFrame.new(0, GROUND_TOP + height, 0) * CFrame.Angles(math.rad(45), 0, 0),
-		Color = roofColor,
-		Material = Enum.Material.Slate,
-	}).Parent = house
-
-	-- Front faces -Z (toward the garden and the plaza).
-	local front = -depth / 2 - 0.1
-	Build.part({
-		Name = "Door",
-		Size = Vector3.new(4, 7, 0.4),
-		CFrame = origin * CFrame.new(0, GROUND_TOP + 3.5, front),
-		Color = Color3.fromRGB(120, 75, 40),
-		Material = Enum.Material.Wood,
-	}).Parent = house
-	for _, x in { -6.5, 6.5 } do
-		Build.part({
-			Name = "Window",
-			Size = Vector3.new(3.5, 3, 0.4),
-			CFrame = origin * CFrame.new(x, GROUND_TOP + 7, front),
-			Color = Color3.fromRGB(150, 200, 230),
-			Material = Enum.Material.Glass,
-			Transparency = 0.2,
-		}).Parent = house
-	end
-
-	house.Parent = parent
-end
 
 -- Rectangle of fence from (x1, z1) to (x2, z2) in plot space, with a gap
 -- of gapWidth centered on each side listed in gaps ("front" is -Z,
@@ -99,23 +70,18 @@ local function buildFencedArea(parent: Instance, origin: CFrame, x1: number, z1:
 	side("left", Vector3.new(x1, 0, z2), Vector3.new(x1, 0, z1))
 end
 
-local function buildDecor(plot: Model, index: number, origin: CFrame)
+local function buildDecor(plot: Model, origin: CFrame)
 	local decor = Instance.new("Folder")
 	decor.Name = "Decor"
 	decor.Parent = plot
 
 	-- Front garden fence, open toward the plaza and toward the house.
-	buildFencedArea(decor, origin, -22, -37, 22, -3, { front = true, back = true }, 10)
-	Build.signPost(decor, (origin * CFrame.new(-26, GROUND_TOP, -38)).Position, "Front Garden", FRONT_GARDEN_COLOR)
+	buildFencedArea(decor, origin, -22, -47, 22, -3, { front = true, back = true }, 10)
+	Build.signPost(decor, (origin * CFrame.new(-26, GROUND_TOP, -48)).Position, "Front Garden", FRONT_GARDEN_COLOR)
 
-	buildHouse(decor, origin * CFrame.new(-20, 0, 26), ROOF_COLORS[(index - 1) % #ROOF_COLORS + 1])
-
-	-- Back garden: fenced, open toward the spawn point, with saplings.
-	buildFencedArea(decor, origin, 8, 8, 38, 40, { left = true }, 8)
-	Build.signPost(decor, (origin * CFrame.new(41, GROUND_TOP, 6)).Position, "Back Garden", BACK_GARDEN_COLOR)
-	for _, spot in { Vector3.new(16, 0, 16), Vector3.new(30, 0, 16), Vector3.new(16, 0, 32), Vector3.new(30, 0, 32) } do
-		Build.tree(decor, (origin * CFrame.new(spot.X, GROUND_TOP, spot.Z)).Position, 0.35)
-	end
+	-- Back garden: fenced, open toward the spawn point.
+	buildFencedArea(decor, origin, 6, 8, 40, 40, { left = true }, 8)
+	Build.signPost(decor, (origin * CFrame.new(43, GROUND_TOP, 6)).Position, "Back Garden", BACK_GARDEN_COLOR)
 
 	for _, spot in {
 		Vector3.new(-42, 0, -25),
@@ -153,27 +119,84 @@ local function buildPlot(index: number, origin: CFrame): Model
 	garden.Name = "FrontGarden"
 	garden.Parent = plot
 	local tileIndex = 0
+	local function addTile(x: number, z: number, level: number)
+		tileIndex += 1
+		local tile = Build.part({
+			Name = "Tile" .. tileIndex,
+			Size = Vector3.new(TILE_SIZE, 1, TILE_SIZE),
+			CFrame = origin * CFrame.new(x, 1.5, z),
+			Color = Color3.fromRGB(110, 72, 44),
+			Material = Enum.Material.Ground,
+		})
+		tile:SetAttribute("RequiredLevel", level)
+		Build.prompt(tile, "Plant", "Soil")
+		tile.Parent = garden
+	end
 	for _, z in TILE_ROWS do
 		for _, x in TILE_COLUMNS do
-			tileIndex += 1
-			local tile = Build.part({
-				Name = "Tile" .. tileIndex,
-				Size = Vector3.new(TILE_SIZE, 1, TILE_SIZE),
-				CFrame = origin * CFrame.new(x, 1.5, z),
-				Color = Color3.fromRGB(110, 72, 44),
-				Material = Enum.Material.Ground,
-			})
-			Build.prompt(tile, "Plant", "Soil")
-			tile.Parent = garden
+			addTile(x, z, 1)
 		end
 	end
+	for _, x in TILE_COLUMNS do
+		addTile(x, EXTRA_TILE_ROW, 2)
+	end
 
-	buildDecor(plot, index, origin)
+	local treeSpots = Instance.new("Folder")
+	treeSpots.Name = "TreeSpots"
+	treeSpots.Parent = plot
+	for i, spot in TREE_SPOTS do
+		local part = Build.part({
+			Name = "Spot" .. i,
+			Shape = Enum.PartType.Cylinder,
+			Size = Vector3.new(0.4, 5, 5),
+			CFrame = origin * CFrame.new(spot.position.X, GROUND_TOP + 0.2, spot.position.Z) * CFrame.Angles(0, 0, math.rad(90)),
+			Color = Color3.fromRGB(100, 68, 42),
+			Material = Enum.Material.Ground,
+			CanCollide = false,
+		})
+		part:SetAttribute("RequiredLevel", spot.level)
+		Build.prompt(part, "Plant tree", "Empty spot")
+		part.Parent = treeSpots
+	end
+
+	local buildSpots = Instance.new("Folder")
+	buildSpots.Name = "BuildSpots"
+	buildSpots.Parent = plot
+	for decorId, offset in HomeBuilder.DECOR_SPOTS do
+		local blueprint = Blueprints[decorId]
+		local pad = Build.part({
+			Name = decorId,
+			Size = Vector3.new(6, 0.2, 6),
+			CFrame = origin * offset * CFrame.new(0, GROUND_TOP + 0.1, 0),
+			Color = Color3.fromRGB(245, 200, 60),
+			Material = Enum.Material.SmoothPlastic,
+			Transparency = 0.6,
+			CanCollide = false,
+		})
+		Build.prompt(pad, "Build", if blueprint then blueprint.displayName else decorId)
+		pad.Parent = buildSpots
+	end
+
+	local roofIndex = (index - 1) % #ROOF_COLORS + 1
+	plot:SetAttribute("RoofIndex", roofIndex)
+	HomeBuilder.buildHouse(plot, origin, 1, ROOF_COLORS[roofIndex])
+
+	local upgrade = Build.part({
+		Name = "HouseUpgrade",
+		Size = Vector3.new(4, 6, 1),
+		CFrame = origin * HomeBuilder.HOUSE_OFFSET * CFrame.new(0, GROUND_TOP + 3, -13),
+		Transparency = 1,
+		CanCollide = false,
+	})
+	Build.prompt(upgrade, "Upgrade house", "House")
+	upgrade.Parent = plot
+
+	buildDecor(plot, origin)
 
 	local signAnchor = Build.part({
 		Name = "SignAnchor",
 		Size = Vector3.new(1, 1, 1),
-		CFrame = origin * CFrame.new(0, 8, -PLOT_SIZE / 2 + 2),
+		CFrame = origin * CFrame.new(0, 8, -54),
 		Transparency = 1,
 		CanCollide = false,
 	})
@@ -213,9 +236,23 @@ local function claimPlot(player: Player)
 	end
 end
 
--- Called with the plot right before its owner leaves, so other systems
--- (e.g. Farming) can clear it.
-Plots.onPlotReleased = nil :: ((plot: Model) -> ())?
+local releaseCallbacks: { (Model) -> () } = {}
+
+-- Register a function called with the plot right before its owner leaves,
+-- so systems (Farming, Forestry, Homestead) can reset it.
+function Plots.onRelease(callback: (plot: Model) -> ())
+	table.insert(releaseCallbacks, callback)
+end
+
+function Plots.roofColor(plot: Model): Color3
+	local index = plot:GetAttribute("RoofIndex")
+	return ROOF_COLORS[if type(index) == "number" then index else 1]
+end
+
+-- The plot's origin: on the ground plane, front (-Z) facing the plaza.
+function Plots.origin(plot: Model): CFrame
+	return ((plot :: any).Ground :: BasePart).CFrame * CFrame.new(0, -0.5, 0)
+end
 
 function Plots.getPlot(player: Player): Model?
 	return ownerOf[player]
@@ -263,8 +300,8 @@ function Plots.start()
 		if not plot then
 			return
 		end
-		if Plots.onPlotReleased then
-			Plots.onPlotReleased(plot)
+		for _, callback in releaseCallbacks do
+			callback(plot)
 		end
 		setOwner(plot, nil)
 		ownerOf[player] = nil

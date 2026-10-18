@@ -37,8 +37,20 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   one per player (`OwnerId` attribute on the plot). Front gardens face
   the plaza. Houses, fences, and trees go in each plot's `Decor` folder.
 - `Plaza` builds `workspace.Plaza` (floor, fountain, lamps, 4 shop
-  stalls, a bridge to every island) and handles shop prompts. Seed and Sell shops work; Gear and
-  Blueprint are placeholders.
+  stalls, a bridge to every island) and handles the Sell Shop prompt.
+  Shops with a menu have an `OpenShop` prompt (attribute `Shop`); the
+  client `ShopMenu` opens it from `shared/ShopCatalog`, and server
+  `Shops` handles `ShopBuy` (checks distance, charges, grants). New
+  entry types: `Shops.registerType` + `ShopMenu.registerOwnedText`.
+- `Homestead`: house upgrades (`HouseUpgrade` prompt, needs blueprint +
+  wood), decorations on `BuildSpots`, and unlocking parts with a
+  `RequiredLevel` attribute (sets `Locked` on the part and `Hidden` on its
+  prompt). `HomeBuilder` builds house levels and decorations.
+- `Forestry`: back-garden `TreeSpots`; saplings grow on real time
+  (saved in `trees`), chop for Wood.
+- `Notify.send(player, text, kind)` shows a toast; `Remotes.event(name)`
+  gets or creates a RemoteEvent.
+- Plot reset on leave: register with `Plots.onRelease`.
 - `Farming` handles soil-tile prompts (plant, grow, harvest). Growth is
   real-time and saved per tile (`garden`), so crops keep growing offline.
   `Farming.growthMultiplier` / `harvestAmount` are hooks for bonuses.
@@ -55,7 +67,10 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - `src/first/LoadingScreen.client.luau` shows the loading screen and
   drives the steps above.
 - `Build` has the shared part/prompt/sign/tree/lamp/fence helpers.
-- `src/shared/Crops.luau` is the single list of crops and their numbers.
+- Shared definitions: `Crops`, `Items` (stackables), `Trees`,
+  `Blueprints`, `ShopCatalog`. Balance numbers live there.
+- Client UI: `UI` helpers, `Toasts`, `ShopMenu`, `Inventory` (Bag, tabs
+  via `Inventory.addTab`), `SeedBar` (crops + saplings), `PlotPrompts`.
 - Remotes live in `ReplicatedStorage.Remotes`, created by the server.
   Validate every remote argument on the server.
 
