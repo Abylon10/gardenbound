@@ -28,7 +28,7 @@ local SHOPS: { ShopInfo } = {
 	{ key = "SeedShop", displayName = "Seed Shop", subtitle = "Seeds for your garden", color = Color3.fromRGB(70, 160, 80) },
 	{ key = "SellShop", displayName = "Sell Shop", subtitle = "Sell your crops", color = Color3.fromRGB(200, 60, 50) },
 	{ key = "GearShop", displayName = "Gear Shop", subtitle = "Forge and upgrade gear", color = Color3.fromRGB(60, 100, 200) },
-	{ key = "BlueprintShop", displayName = "Blueprint Shop", subtitle = "Coming soon", color = Color3.fromRGB(130, 80, 190) },
+	{ key = "BlueprintShop", displayName = "Blueprint Shop", subtitle = "House upgrades and decorations", color = Color3.fromRGB(130, 80, 190) },
 }
 
 local Plaza = {}
