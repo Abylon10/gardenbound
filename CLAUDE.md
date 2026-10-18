@@ -60,15 +60,21 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - `PetSystem`: HatchEgg/EquipPet remotes, follower pets on the
   character, publishes `Pets`/`EquippedPets` JSON. Defs in `shared/Pets`.
 - `Wilderness`: the Meadow zone island beyond the Wilderness Gate
-  (`MapLayout.ZONES`), its bridge, and its enemy zone.
+  (`MapLayout.ZONES`), its bridge, its enemy zone (slimes, goblins), and
+  its egg spots.
+- `EggSpawns`: eggs are world collectibles, never monster drops. Each
+  area keeps a few glowing eggs on spots; rarity by distance from the
+  entrance, hidden spots one band better; respawn elsewhere after pickup.
 - `Dungeon`: the Abandoned Mine at (1600, -300, 0), Persistent; four
-  rooms with enemy zones and ore veins (`MineVein` prompts), entered
+  rooms with enemy zones (slimes, bats) and ore veins (`MineVein` prompts), entered
   from the Dungeon Portal (`EnterMine`), exit portal `LeaveMine`.
   Enemies ignore players more than 25 studs above/below their zone.
 - `Forge`: ForgeCraft/ForgeUpgrade (at the Gear Shop) and EquipGear;
   armor is a Bonuses source. Gear stats/recipes in `shared/Gear`.
-- `Alchemy`: Brew (at your plot's `Cauldron`) and UsePotion; timed buffs
-  are a Bonuses source and set WalkSpeed. Recipes in `shared/Potions`.
+- `Alchemy`: Brew (at your plot's `Cauldron`) and UsePotion with
+  per-potion cooldowns; timed buffs are a Bonuses source and multiply
+  WalkSpeed. Three potions (Health, Swiftness, Strength) in
+  `shared/Potions`.
 - `Teleport.to(player, cframe)` moves a character safely (holds it while
   the destination streams in).
 - `Notify.send(player, text, kind)` shows a toast; `Remotes.event(name)`
@@ -104,7 +110,9 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - Map art (islands, water, bridges, real shop models) is planned to be
   built in Studio; the code-built parts are placeholders. Keep gameplay
   objects (prompts, tiles) findable by name so art can replace the rest.
-- Map reference: `docs/map-design.md`.
+- Map reference: `docs/map-design.md`. Game content decisions (crops,
+  trees, enemies, drops, eggs, potions) come from Justin Dave; numbers
+  marked "proposed" are starting values for balancing.
 - Tabs for indentation. Each module has a short header comment.
 - Prefer server-authoritative logic; the client only shows UI and sends
   requests.

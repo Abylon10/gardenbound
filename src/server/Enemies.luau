@@ -87,22 +87,6 @@ local function buildModel(kind: string): Model
 			Material = Enum.Material.Glass,
 			Transparency = 0.2,
 		})
-	elseif def.shape == "rabbit" then
-		body = add("Body", {
-			Shape = Enum.PartType.Ball,
-			Size = Vector3.new(size * 0.8, size * 0.7, size),
-			CFrame = CFrame.new(0, size * 0.35, 0),
-			Color = def.color,
-			Material = Enum.Material.Fabric,
-		})
-		for _, x in { -0.25, 0.25 } do
-			add("Ear", {
-				Size = Vector3.new(size * 0.15, size * 0.5, size * 0.1),
-				CFrame = CFrame.new(x * size, size * 0.9, -size * 0.25),
-				Color = def.color,
-				Material = Enum.Material.Fabric,
-			})
-		end
 	elseif def.shape == "bat" then
 		body = add("Body", {
 			Shape = Enum.PartType.Ball,
@@ -119,48 +103,13 @@ local function buildModel(kind: string): Model
 				Material = Enum.Material.Fabric,
 			})
 		end
-	elseif def.shape == "golem" then
-		body = add("Body", {
-			Size = Vector3.new(size * 0.8, size * 0.7, size * 0.5),
-			CFrame = CFrame.new(0, size * 0.55, 0),
-			Color = def.color,
-			Material = Enum.Material.Rock,
-		})
-		add("Head", {
-			Size = Vector3.new(size * 0.35, size * 0.3, size * 0.3),
-			CFrame = CFrame.new(0, size * 1.05, -size * 0.05),
-			Color = def.color,
-			Material = Enum.Material.Rock,
-		})
-		add("Core", {
-			Shape = Enum.PartType.Ball,
-			Size = Vector3.new(size * 0.2, size * 0.2, size * 0.2),
-			CFrame = CFrame.new(0, size * 0.6, -size * 0.25),
-			Color = Color3.fromRGB(255, 140, 50),
-			Material = Enum.Material.Neon,
-		})
-		for _, x in { -1, 1 } do
-			add("Arm", {
-				Size = Vector3.new(size * 0.22, size * 0.7, size * 0.25),
-				CFrame = CFrame.new(x * size * 0.52, size * 0.45, 0),
-				Color = def.color,
-				Material = Enum.Material.Rock,
-			})
-			add("Leg", {
-				Size = Vector3.new(size * 0.25, size * 0.25, size * 0.25),
-				CFrame = CFrame.new(x * size * 0.2, size * 0.12, 0),
-				Color = def.color,
-				Material = Enum.Material.Rock,
-			})
-		end
 	else
-		-- "goblin" and "skeleton": a small humanoid with a club or pickaxe.
-		local isSkeleton = def.shape == "skeleton"
+		-- "goblin": a small humanoid with a club.
 		body = add("Body", {
 			Size = Vector3.new(size * 0.6, size * 0.6, size * 0.4),
 			CFrame = CFrame.new(0, size * 0.45, 0),
-			Color = if isSkeleton then def.color else Color3.fromRGB(120, 85, 50),
-			Material = if isSkeleton then Enum.Material.SmoothPlastic else Enum.Material.Fabric,
+			Color = Color3.fromRGB(120, 85, 50),
+			Material = Enum.Material.Fabric,
 		})
 		add("Head", {
 			Shape = Enum.PartType.Ball,
@@ -169,11 +118,11 @@ local function buildModel(kind: string): Model
 			Color = def.color,
 			Material = Enum.Material.SmoothPlastic,
 		})
-		add(if isSkeleton then "Pickaxe" else "Club", {
+		add("Club", {
 			Size = Vector3.new(size * 0.12, size * 0.6, size * 0.12),
 			CFrame = CFrame.new(size * 0.4, size * 0.5, -size * 0.15) * CFrame.Angles(math.rad(-30), 0, 0),
-			Color = if isSkeleton then Color3.fromRGB(150, 150, 160) else Color3.fromRGB(90, 60, 35),
-			Material = if isSkeleton then Enum.Material.Metal else Enum.Material.Wood,
+			Color = Color3.fromRGB(90, 60, 35),
+			Material = Enum.Material.Wood,
 		})
 	end
 	-- Two eyes on the front (-Z).
@@ -223,7 +172,7 @@ end
 
 local function placeModel(enemy: Enemy, now: number)
 	local def = EnemyTypes[enemy.kind]
-	local hop = if def.shape == "slime" or def.shape == "rabbit"
+	local hop = if def.shape == "slime"
 		then math.abs(math.sin(now * 6)) * def.size * 0.25
 		elseif def.shape == "bat" then math.sin(now * 4) * def.size * 0.2
 		else 0

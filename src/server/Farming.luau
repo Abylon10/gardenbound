@@ -150,48 +150,6 @@ local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	end
 end
 
--- How many crops are planted and not yet ready.
-function Farming.growingCount(player: Player): number
-	local plot = Plots.getPlot(player)
-	local data = PlayerData.get(player)
-	if not plot or not data then
-		return 0
-	end
-	local count = 0
-	for tileName in data.garden do
-		local tile = (plot :: any).FrontGarden:FindFirstChild(tileName)
-		if tile and not tile:GetAttribute("Ready") then
-			count += 1
-		end
-	end
-	return count
-end
-
--- Finishes every crop growing in the player's front garden (Growth
--- Potion). Returns how many crops it finished.
-function Farming.growAll(player: Player): number
-	local plot = Plots.getPlot(player)
-	local data = PlayerData.get(player)
-	if not plot or not data then
-		return 0
-	end
-	local count = 0
-	for tileName, entry in data.garden do
-		local tile = (plot :: any).FrontGarden:FindFirstChild(tileName) :: BasePart?
-		local crop = Crops[entry.crop]
-		if tile and crop and not tile:GetAttribute("Ready") then
-			local old = tile:FindFirstChild("Crop")
-			if old then
-				old:Destroy()
-			end
-			entry.plantedAt = os.time() - math.ceil(crop.growTime * Farming.growthMultiplier(player)) - 1
-			startGrowing(player, tile, entry.crop, entry.plantedAt)
-			count += 1
-		end
-	end
-	return count
-end
-
 -- Puts the player's saved crops back on their plot once both are ready.
 local function restoreGarden(player: Player)
 	if not PlayerData.waitForLoad(player) then

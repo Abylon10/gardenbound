@@ -19,7 +19,12 @@ function Bonuses.addSource(source: (Player) -> { [string]: number })
 	table.insert(sources, source)
 end
 
-local MULTIPLIERS = { cropGrowth = true, treeGrowth = true, sellPrice = true, wood = true }
+local MULTIPLIERS = { cropGrowth = true, treeGrowth = true, sellPrice = true, wood = true, damageMultiplier = true }
+
+-- True for keys that multiply (start at 1) rather than add (start at 0).
+function Bonuses.isMultiplier(key: string): boolean
+	return MULTIPLIERS[key] == true
+end
 
 -- The combined value of one bonus key. Multipliers start at 1 and multiply;
 -- everything else starts at 0 and adds.

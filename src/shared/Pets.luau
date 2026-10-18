@@ -101,10 +101,20 @@ local Pets: { [string]: Pet } = {
 	},
 }
 
--- What each egg can hatch into, with weights.
+-- What each egg can hatch into, with weights. Eggs are found in the
+-- wilderness: Common near the entrance, Forest further in, Ancient far
+-- away or in hidden spots.
 local EggTables: { [string]: { [string]: number } } = {
 	CommonEgg = { Bee = 30, Rabbit = 30, Wolf = 30, Butterfly = 5, FireSprite = 5 },
 	ForestEgg = { Rabbit = 15, Wolf = 15, Turtle = 20, Golem = 20, Butterfly = 12, Treant = 10, Hawk = 6, Dragon = 2 },
+	AncientEgg = { Butterfly = 15, Turtle = 15, Golem = 15, Treant = 20, Hawk = 20, Dragon = 15 },
+}
+
+-- Glow color for each egg in the world.
+local EggGlow: { [string]: Color3 } = {
+	CommonEgg = Color3.fromRGB(255, 255, 230),
+	ForestEgg = Color3.fromRGB(80, 150, 255),
+	AncientEgg = Color3.fromRGB(190, 90, 255),
 }
 
 local RarityColors: { [string]: Color3 } = {
@@ -117,5 +127,6 @@ local RarityColors: { [string]: Color3 } = {
 return {
 	list = Pets,
 	eggs = EggTables,
+	eggGlow = EggGlow,
 	rarityColors = RarityColors,
 }

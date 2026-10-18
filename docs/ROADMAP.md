@@ -11,7 +11,8 @@ Each phase should be playable on its own before the next starts.
 
 ### Phase 1: Front garden economy (done)
 - [x] Plot per player (6 plots, generated at runtime)
-- [x] Plant → grow → harvest → sell loop (Carrot, Tomato, Pumpkin)
+- [x] Plant → grow → harvest → sell loop (Carrot, Tomato, Eggplant,
+      Cabbage, Chilli)
 - [x] Central Plaza with Seed, Sell, Gear, and Blueprint shops on its
       outer ring; plots in a ring around it (see `docs/map-design.md`)
 - [x] Island map from the initial design: sea, plaza island with
@@ -24,7 +25,8 @@ Each phase should be playable on its own before the next starts.
 - [x] Hide other players' plot prompts on the client
 
 ### Phase 2: Back garden and building (done)
-- [x] Saplings (Oak, Pine, Maple) from the Seed Shop → grow → chop → wood
+- [x] Saplings (Birch, Apple, Coconut) from the Seed Shop → grow → chop
+      → wood
 - [x] Blueprint Shop: house upgrades II and III, five decorations
 - [x] House level 2: porch, chimney, +4 garden tiles; level 3: second
       story, +2 tree spots
@@ -33,22 +35,27 @@ Each phase should be playable on its own before the next starts.
 - [ ] Free placement of furniture inside the house (later)
 
 ### Phase 3: Wilderness and pets (done)
-- [x] Meadow zone beyond the Wilderness Gate: slimes, rabbits, goblins
-- [x] Combat: Wooden Sword tool, enemy health bars, respawn at home
-- [x] Drops: coins, Slime Goo, Rabbit Fluff, Goblin Tooth, Common and
-      Forest eggs
+- [x] Meadow zone beyond the Wilderness Gate: slimes and goblins
+- [x] Combat: sword tool, enemy health bars, respawn at home
+- [x] Drops: Slime → coins, Slime Gel, Wild Berries; Goblin → more coins,
+      Goblin Fang, Rough Hide, rare Rusty Sword
+- [x] Eggs are found in the world, not dropped: glowing eggs on spots
+      beside trees, behind rocks, and in clearings; rarer further from the
+      entrance and in hidden spots; respawn elsewhere after collection
 - [x] 10 pets (5 farm, 5 battle) in 4 rarities; hatch from the Bag, equip
       one of each; equipped pets follow you and give bonuses
 - [ ] Pet levels (later)
 
 ### Phase 4: Dungeon, forging, potions (done)
 - [x] Abandoned Mine through the Dungeon Portal: Entrance, Tunnels,
-      Diggings, Golem Hall; cave bats, skeleton miners, Rock Golem boss
+      Diggings, Deep Cavern; slimes (Slime Gel, Slime Core) and bats (Bat
+      Wing, rare Shadow Essence)
 - [x] Copper and iron ore veins (regrow after 45 s)
-- [x] Forge at the Gear Shop: 3 swords + 4 armors to craft, upgrade +1
-      to +10, equip from the Bag's Gear tab
-- [x] Cauldron at home: Health, Strength, Iron Skin, Swiftness, and
-      Growth potions; use from the Bag
+- [x] Forge at the Gear Shop: Copper/Iron swords, Shadow Blade, four
+      armors; upgrade +1 to +10; equip from the Bag's Gear tab
+- [x] Cauldron at home: Health (30% HP, 15 s cooldown), Swiftness (+25%
+      speed for 10 s, 30 s cooldown), Strength (+15% damage for 15 s,
+      30 s cooldown)
 
 ## MVP status
 All four phases of the proposal's first playable version are in. Next

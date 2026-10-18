@@ -1,4 +1,8 @@
--- Enemy stats. drops: chance (0-1) to drop one of an item when killed.
+-- Enemy stats and drops. Eggs are never dropped by enemies; they are found
+-- in the wilderness (see server EggSpawns).
+--   coins     coins per kill
+--   drops     item id -> chance (0-1) to drop one
+--   gearDrops gear id -> chance to drop that gear (if not already owned)
 -- shape picks how the server builds the model (see server Enemies).
 
 export type EnemyType = {
@@ -13,11 +17,12 @@ export type EnemyType = {
 	shape: string,
 	coins: number,
 	drops: { [string]: number },
+	gearDrops: { [string]: number }?,
 	respawn: number?, -- seconds; default 10
-	boss: boolean?,
 }
 
 local EnemyTypes: { [string]: EnemyType } = {
+	-- Wilderness (Meadow)
 	Slime = {
 		displayName = "Slime",
 		health = 30,
@@ -29,20 +34,7 @@ local EnemyTypes: { [string]: EnemyType } = {
 		color = Color3.fromRGB(110, 220, 110),
 		shape = "slime",
 		coins = 3,
-		drops = { SlimeGoo = 0.6, CommonEgg = 0.1 },
-	},
-	Rabbit = {
-		displayName = "Wild Rabbit",
-		health = 20,
-		damage = 3,
-		attackCooldown = 1,
-		speed = 14,
-		aggroRange = 22,
-		size = 3,
-		color = Color3.fromRGB(235, 225, 210),
-		shape = "rabbit",
-		coins = 2,
-		drops = { RabbitFluff = 0.6, CommonEgg = 0.1 },
+		drops = { SlimeGel = 0.7, WildBerry = 0.3 },
 	},
 	Goblin = {
 		displayName = "Goblin",
@@ -54,12 +46,27 @@ local EnemyTypes: { [string]: EnemyType } = {
 		size = 5,
 		color = Color3.fromRGB(90, 150, 60),
 		shape = "goblin",
-		coins = 8,
-		drops = { GoblinTooth = 0.5, CommonEgg = 0.15, ForestEgg = 0.08 },
+		coins = 10,
+		drops = { GoblinFang = 0.6, RoughHide = 0.5 },
+		gearDrops = { RustySword = 0.05 },
 	},
-	-- Abandoned Mine
-	CaveBat = {
-		displayName = "Cave Bat",
+
+	-- Dungeon (Abandoned Mine)
+	CaveSlime = {
+		displayName = "Slime",
+		health = 60,
+		damage = 10,
+		attackCooldown = 1.2,
+		speed = 9,
+		aggroRange = 28,
+		size = 5,
+		color = Color3.fromRGB(70, 170, 200),
+		shape = "slime",
+		coins = 6,
+		drops = { SlimeGel = 0.8, SlimeCore = 0.25 },
+	},
+	Bat = {
+		displayName = "Bat",
 		health = 45,
 		damage = 8,
 		attackCooldown = 0.9,
@@ -69,35 +76,7 @@ local EnemyTypes: { [string]: EnemyType } = {
 		color = Color3.fromRGB(60, 50, 70),
 		shape = "bat",
 		coins = 5,
-		drops = { BatWing = 0.6 },
-	},
-	SkeletonMiner = {
-		displayName = "Skeleton Miner",
-		health = 110,
-		damage = 15,
-		attackCooldown = 1.4,
-		speed = 10,
-		aggroRange = 30,
-		size = 5,
-		color = Color3.fromRGB(235, 230, 210),
-		shape = "skeleton",
-		coins = 12,
-		drops = { Bone = 0.6, CopperOre = 0.4 },
-	},
-	RockGolem = {
-		displayName = "Rock Golem (Boss)",
-		health = 900,
-		damage = 30,
-		attackCooldown = 2,
-		speed = 7,
-		aggroRange = 40,
-		size = 10,
-		color = Color3.fromRGB(120, 110, 100),
-		shape = "golem",
-		coins = 120,
-		drops = { GolemCore = 1, IronOre = 1 },
-		respawn = 90,
-		boss = true,
+		drops = { BatWing = 0.7, ShadowEssence = 0.08 },
 	},
 }
 

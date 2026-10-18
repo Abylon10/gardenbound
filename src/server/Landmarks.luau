@@ -77,7 +77,7 @@ local function buildDungeonPortal(parent: Instance)
 		Material = Enum.Material.Slate,
 	})
 	lintel.Parent = portal
-	Build.sign(lintel, "Dungeon Portal", "Abandoned Mine: ore, monsters, and a Rock Golem", 6)
+	Build.sign(lintel, "Dungeon Portal", "Abandoned Mine: ore, slimes, and bats", 6)
 
 	local gateway = Build.part({
 		Name = "Gateway",
@@ -138,7 +138,7 @@ local function buildWildernessGate(parent: Instance)
 		Color = Color3.fromRGB(60, 150, 70),
 		Material = Enum.Material.Fabric,
 	}).Parent = gate
-	Build.sign(beam, "Wilderness Gate", "The Meadow lies beyond. Bring your sword!", 5)
+	Build.sign(beam, "Wilderness Gate", "The Meadow lies beyond. Look for eggs!", 5)
 
 	treesAround(gate, origin, {
 		Vector3.new(-20, 0, 10),

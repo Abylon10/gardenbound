@@ -1,4 +1,5 @@
--- Weapons and armor, crafted and upgraded at the Forge (Gear Shop).
+-- Weapons and armor, crafted and upgraded at the Forge (Gear Shop). The
+-- Rusty Sword can't be crafted; goblins drop it rarely.
 -- Enhancement +N raises the main stat (damage or health) by 10% per level,
 -- up to +10. Armor also blocks a fraction of damage (defense).
 
@@ -15,6 +16,7 @@ export type GearItem = {
 	order: number,
 	craft: Cost?, -- nil = can't be crafted (starter gear)
 	upgradeItem: string, -- material used to upgrade
+	upgradeAmount: number?, -- material per level step (default 2)
 	upgradeCoins: number, -- coins per level step
 }
 
@@ -30,14 +32,25 @@ local Gear: { [string]: GearItem } = {
 		upgradeItem = "Wood",
 		upgradeCoins = 10,
 	},
+	RustySword = {
+		displayName = "Rusty Sword",
+		slot = "weapon",
+		tier = "Common",
+		damage = 14,
+		color = Color3.fromRGB(150, 90, 60),
+		order = 2,
+		craft = nil, -- rare goblin drop
+		upgradeItem = "GoblinFang",
+		upgradeCoins = 15,
+	},
 	CopperSword = {
 		displayName = "Copper Sword",
 		slot = "weapon",
 		tier = "Rare",
 		damage = 18,
 		color = Color3.fromRGB(200, 120, 70),
-		order = 2,
-		craft = { coins = 80, items = { CopperOre = 8, GoblinTooth = 2 } },
+		order = 3,
+		craft = { coins = 80, items = { CopperOre = 6, GoblinFang = 3 } },
 		upgradeItem = "CopperOre",
 		upgradeCoins = 20,
 	},
@@ -47,20 +60,21 @@ local Gear: { [string]: GearItem } = {
 		tier = "Epic",
 		damage = 30,
 		color = Color3.fromRGB(190, 190, 200),
-		order = 3,
-		craft = { coins = 200, items = { IronOre = 10, Bone = 4 } },
+		order = 4,
+		craft = { coins = 200, items = { IronOre = 8, SlimeCore = 3 } },
 		upgradeItem = "IronOre",
 		upgradeCoins = 40,
 	},
-	GolemGreatsword = {
-		displayName = "Golem Greatsword",
+	ShadowBlade = {
+		displayName = "Shadow Blade",
 		slot = "weapon",
 		tier = "Legendary",
-		damage = 48,
-		color = Color3.fromRGB(240, 140, 60),
-		order = 4,
-		craft = { coins = 500, items = { IronOre = 12, GolemCore = 2 } },
-		upgradeItem = "IronOre",
+		damage = 45,
+		color = Color3.fromRGB(90, 40, 140),
+		order = 5,
+		craft = { coins = 500, items = { IronOre = 10, ShadowEssence = 4 } },
+		upgradeItem = "ShadowEssence",
+		upgradeAmount = 1,
 		upgradeCoins = 80,
 	},
 	LeatherArmor = {
@@ -71,8 +85,8 @@ local Gear: { [string]: GearItem } = {
 		defense = 0.05,
 		color = Color3.fromRGB(150, 100, 60),
 		order = 10,
-		craft = { coins = 60, items = { RabbitFluff = 6, SlimeGoo = 4 } },
-		upgradeItem = "RabbitFluff",
+		craft = { coins = 60, items = { RoughHide = 6 } },
+		upgradeItem = "RoughHide",
 		upgradeCoins = 15,
 	},
 	CopperArmor = {
@@ -83,7 +97,7 @@ local Gear: { [string]: GearItem } = {
 		defense = 0.1,
 		color = Color3.fromRGB(200, 120, 70),
 		order = 11,
-		craft = { coins = 120, items = { CopperOre = 10 } },
+		craft = { coins = 120, items = { CopperOre = 8, RoughHide = 3 } },
 		upgradeItem = "CopperOre",
 		upgradeCoins = 25,
 	},
@@ -95,20 +109,21 @@ local Gear: { [string]: GearItem } = {
 		defense = 0.18,
 		color = Color3.fromRGB(190, 190, 200),
 		order = 12,
-		craft = { coins = 300, items = { IronOre = 14, Bone = 6 } },
+		craft = { coins = 300, items = { IronOre = 10, SlimeCore = 3 } },
 		upgradeItem = "IronOre",
 		upgradeCoins = 50,
 	},
-	GolemPlate = {
-		displayName = "Golem Plate",
+	ShadowPlate = {
+		displayName = "Shadow Plate",
 		slot = "armor",
 		tier = "Legendary",
 		health = 140,
 		defense = 0.25,
-		color = Color3.fromRGB(240, 140, 60),
+		color = Color3.fromRGB(90, 40, 140),
 		order = 13,
-		craft = { coins = 700, items = { IronOre = 16, GolemCore = 3 } },
-		upgradeItem = "IronOre",
+		craft = { coins = 700, items = { IronOre = 12, ShadowEssence = 5 } },
+		upgradeItem = "ShadowEssence",
+		upgradeAmount = 1,
 		upgradeCoins = 100,
 	},
 }
@@ -131,7 +146,7 @@ local function upgradeCost(id: string, level: number): Cost
 	local step = level + 1
 	return {
 		coins = item.upgradeCoins * step,
-		items = { [item.upgradeItem] = 2 * step },
+		items = { [item.upgradeItem] = (item.upgradeAmount or 2) * step },
 	}
 end
 

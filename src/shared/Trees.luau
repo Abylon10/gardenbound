@@ -12,31 +12,31 @@ export type Tree = {
 }
 
 local Trees: { [string]: Tree } = {
-	Oak = {
-		displayName = "Oak",
-		sapling = "OakSapling",
+	Birch = {
+		displayName = "Birch",
+		sapling = "BirchSapling",
 		saplingPrice = 10,
 		growTime = 60,
-		wood = 4,
-		leafColor = Color3.fromRGB(70, 150, 60),
+		wood = 5,
+		leafColor = Color3.fromRGB(150, 200, 80),
 		order = 1,
 	},
-	Pine = {
-		displayName = "Pine",
-		sapling = "PineSapling",
-		saplingPrice = 30,
+	Apple = {
+		displayName = "Apple",
+		sapling = "AppleSapling",
+		saplingPrice = 35,
 		growTime = 150,
-		wood = 10,
-		leafColor = Color3.fromRGB(40, 110, 70),
+		wood = 12,
+		leafColor = Color3.fromRGB(70, 150, 60),
 		order = 2,
 	},
-	Maple = {
-		displayName = "Maple",
-		sapling = "MapleSapling",
+	Coconut = {
+		displayName = "Coconut",
+		sapling = "CoconutSapling",
 		saplingPrice = 90,
 		growTime = 360,
 		wood = 30,
-		leafColor = Color3.fromRGB(220, 110, 50),
+		leafColor = Color3.fromRGB(110, 170, 50),
 		order = 3,
 	},
 }

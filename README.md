@@ -48,12 +48,12 @@ decorations go on the yellow pads around the house. Open the **Bag** button
 on the left to see everything you have.
 
 Wilderness: cross the Wilderness Gate island to reach the Meadow. Click to
-swing your sword. Creatures drop coins, materials, and eggs. Hatch eggs from
-the Bag (Items tab) and equip pets in the Pets tab.
+swing your sword. Slimes and goblins drop coins and materials. Look around the
+Meadow for glowing eggs (rarer further from the entrance and behind rocks).
+Hatch eggs from the Bag (Items tab) and equip pets in the Pets tab.
 
 Dungeon: walk into the purple Dungeon Portal (north) to enter the
-Abandoned Mine. Mine copper and iron veins, fight bats and skeleton miners,
-and beat the Rock Golem. Craft and upgrade gear at the Forge (Gear Shop) and
+Abandoned Mine. Mine copper and iron veins and fight slimes and bats. Craft and upgrade gear at the Forge (Gear Shop) and
 equip it from the Bag's Gear tab. Brew potions at the cauldron by your house
 and drink them from the Bag.
 
