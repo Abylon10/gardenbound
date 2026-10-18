@@ -16,7 +16,7 @@ local MapLayout = {
 	-- out from the origin in every direction.
 	WATER_LEVEL = -3,
 	SEA_FLOOR = -30,
-	MAP_EXTENT = 360,
+	MAP_EXTENT = 540,
 	-- Top of the grass on every island.
 	GROUND_TOP = 1,
 
@@ -42,6 +42,12 @@ local MapLayout = {
 	LANDMARKS = {
 		DungeonPortal = { angle = 0, radius = 220, islandRadius = 42 },
 		WildernessGate = { angle = 27, radius = 220, islandRadius = 42 },
+	},
+
+	-- Wilderness zones, reached through the Wilderness Gate (same angle,
+	-- further out). Not connected to the plaza directly.
+	ZONES = {
+		Meadow = { angle = 27, radius = 430, islandRadius = 110 },
 	},
 }
 
@@ -76,6 +82,20 @@ function MapLayout.islands(): { Island }
 		})
 	end
 	return islands
+end
+
+-- Wilderness zone islands (see ZONES).
+function MapLayout.zones(): { Island }
+	local zones: { Island } = {}
+	for name, zone in MapLayout.ZONES do
+		table.insert(zones, {
+			name = name,
+			angle = zone.angle,
+			radius = zone.radius,
+			islandRadius = zone.islandRadius,
+		})
+	end
+	return zones
 end
 
 return MapLayout

@@ -47,6 +47,10 @@ Shop, then build them at home: the house upgrade prompt is by the door and
 decorations go on the yellow pads around the house. Open the **Bag** button
 on the left to see everything you have.
 
+Wilderness: cross the Wilderness Gate island to reach the Meadow. Click to
+swing your sword. Creatures drop coins, materials, and eggs. Hatch eggs from
+the Bag (Items tab) and equip pets in the Pets tab.
+
 Saving needs **Game Settings → Security → Enable Studio Access to API
 Services** turned on (and the place published). Without it the game
 still runs, it just doesn't save.

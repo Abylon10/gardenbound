@@ -199,48 +199,11 @@ local function buildGreenery(parent: Instance)
 	greenery.Parent = parent
 end
 
--- A wooden bridge with railings from the plaza edge onto an island.
+-- A wooden bridge from the plaza edge onto an island.
 local function buildBridge(parent: Instance, island: MapLayout.Island)
-	local bridge = Instance.new("Model")
-	bridge.Name = "Bridge_" .. island.name
-	local startRadius = MapLayout.PLAZA_RADIUS - 2
-	local endRadius = island.radius - island.islandRadius + 6
-	local length = endRadius - startRadius
-	local middle = MapLayout.pointAt(island.angle, (startRadius + endRadius) / 2)
-	-- Local -Z points back toward the plaza; the deck runs along Z.
-	local frame = CFrame.lookAt(middle, Vector3.zero)
-	local width = 10
-
-	Build.part({
-		Name = "Deck",
-		Size = Vector3.new(width, 1, length),
-		CFrame = frame * CFrame.new(0, TOP - 0.5, 0),
-		Color = WOOD,
-		Material = Enum.Material.WoodPlanks,
-	}).Parent = bridge
-
-	for _, x in { -width / 2 + 0.3, width / 2 - 0.3 } do
-		Build.part({
-			Name = "Rail",
-			Size = Vector3.new(0.5, 0.5, length),
-			CFrame = frame * CFrame.new(x, TOP + 3, 0),
-			Color = WOOD,
-			Material = Enum.Material.Wood,
-		}).Parent = bridge
-		local posts = math.floor(length / 8)
-		for i = 0, posts do
-			local z = -length / 2 + length * (i / posts)
-			Build.part({
-				Name = "Post",
-				Size = Vector3.new(0.8, 4, 0.8),
-				CFrame = frame * CFrame.new(x, TOP + 1.5, z),
-				Color = WOOD,
-				Material = Enum.Material.Wood,
-			}).Parent = bridge
-		end
-	end
-
-	bridge.Parent = parent
+	local from = MapLayout.pointAt(island.angle, MapLayout.PLAZA_RADIUS - 2)
+	local to = MapLayout.pointAt(island.angle, island.radius - island.islandRadius + 6)
+	Build.bridge(parent, "Bridge_" .. island.name, from, to, TOP)
 end
 
 local function buildPlaza()
@@ -283,6 +246,11 @@ local function buildPlaza()
 	plaza.Parent = workspace
 end
 
+-- Bonuses (pets) set this; multiplies coins from selling crops.
+Plaza.sellMultiplier = function(_player: Player): number
+	return 1
+end
+
 local function sellAll(player: Player)
 	local sold = PlayerData.takeAllCrops(player)
 	local total = 0
@@ -292,6 +260,7 @@ local function sellAll(player: Player)
 			total += crop.sellPrice * count
 		end
 	end
+	total = math.floor(total * Plaza.sellMultiplier(player) + 0.5)
 	if total > 0 then
 		PlayerData.addCoins(player, total)
 		Notify.send(player, `Sold crops for {total} coins`, "success")

@@ -15,6 +15,8 @@ type Tab = { name: string, order: number, draw: (list: ScrollingFrame) -> () }
 
 local player = Players.LocalPlayer
 local tabs: { Tab } = {}
+-- Buttons shown on item rows by item kind, e.g. eggs -> "Hatch".
+local itemActions: { [string]: { label: string, run: (itemId: string) -> () } } = {}
 local gui: ScreenGui
 local panel: Frame?
 local currentTab: string = "Items"
@@ -27,6 +29,11 @@ function Inventory.addTab(name: string, order: number, draw: (list: ScrollingFra
 	table.sort(tabs, function(a, b)
 		return a.order < b.order
 	end)
+end
+
+-- Adds a button to every item of this kind in the Items tab.
+function Inventory.addItemAction(kind: string, label: string, run: (itemId: string) -> ())
+	itemActions[kind] = { label = label, run = run }
 end
 
 local function close()
@@ -79,7 +86,7 @@ local function itemsTab(list: ScrollingFrame)
 	local order = 0
 	local function add(title: string, subtitle: string, color: Color3)
 		order += 1
-		UI.row(list, order, title, subtitle, color)
+		UI.row(list, order, title, subtitle, color).Name = "Row" .. order
 	end
 
 	local cropNames = {}
@@ -110,6 +117,14 @@ local function itemsTab(list: ScrollingFrame)
 		if count > 0 then
 			local item = Items[itemId]
 			add(`{item.displayName} x{count}`, item.description, item.color)
+			local action = itemActions[item.kind]
+			if action then
+				local row = list:FindFirstChild("Row" .. order) :: Frame
+				local button = UI.button(row, action.label, UDim2.fromOffset(100, 34), UDim2.new(1, -110, 0, 12))
+				button.Activated:Connect(function()
+					action.run(itemId)
+				end)
+			end
 		end
 	end
 
