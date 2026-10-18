@@ -1,10 +1,27 @@
 -- Where everything sits on the server map, in studs. The Central Plaza is
--- centered on the world origin and the player plots form a ring around it.
+-- centered on the world origin, the player islands form a ring around it,
+-- and the Dungeon Portal and Wilderness Gate islands sit to the north.
 -- Angles are degrees clockwise from north (-Z), so 90 is east (+X).
--- North is kept free for the Dungeon Portal and Wilderness Gate.
+-- See docs/map-design.md.
+
+export type Island = {
+	name: string,
+	angle: number,
+	radius: number,
+	islandRadius: number,
+}
 
 local MapLayout = {
+	-- Sea: terrain water from SEA_FLOOR up to WATER_LEVEL, MAP_EXTENT studs
+	-- out from the origin in every direction.
+	WATER_LEVEL = -3,
+	SEA_FLOOR = -30,
+	MAP_EXTENT = 360,
+	-- Top of the grass on every island.
+	GROUND_TOP = 1,
+
 	PLAZA_RADIUS = 60,
+	PLAZA_ISLAND_RADIUS = 68,
 	-- Top of the plaza floor; the default SpawnLocation sits just below it.
 	PLAZA_TOP = 1.2,
 
@@ -17,9 +34,15 @@ local MapLayout = {
 		BlueprintShop = 315,
 	},
 
-	PLOT_RING_RADIUS = 180,
+	PLOT_RING_RADIUS = 220,
 	PLOT_SIZE = 90,
+	PLOT_ISLAND_RADIUS = 72,
 	PLOT_ANGLES = { 70, 114, 158, 202, 246, 290 },
+
+	LANDMARKS = {
+		DungeonPortal = { angle = 0, radius = 220, islandRadius = 42 },
+		WildernessGate = { angle = 27, radius = 220, islandRadius = 42 },
+	},
 }
 
 function MapLayout.pointAt(angle: number, radius: number): Vector3
@@ -31,6 +54,28 @@ end
 function MapLayout.facingCenter(angle: number, radius: number): CFrame
 	local position = MapLayout.pointAt(angle, radius)
 	return CFrame.lookAt(position, Vector3.zero)
+end
+
+-- Every island except the plaza: player plots first, then landmarks.
+function MapLayout.islands(): { Island }
+	local islands: { Island } = {}
+	for i, angle in MapLayout.PLOT_ANGLES do
+		table.insert(islands, {
+			name = "Plot" .. i,
+			angle = angle,
+			radius = MapLayout.PLOT_RING_RADIUS,
+			islandRadius = MapLayout.PLOT_ISLAND_RADIUS,
+		})
+	end
+	for name, landmark in MapLayout.LANDMARKS do
+		table.insert(islands, {
+			name = name,
+			angle = landmark.angle,
+			radius = landmark.radius,
+			islandRadius = landmark.islandRadius,
+		})
+	end
+	return islands
 end
 
 return MapLayout

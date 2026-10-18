@@ -22,19 +22,24 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   mirrors it to `leaderstats.Coins` and player attributes
   `Seed_<Crop>` / `Crop_<Crop>`. Other systems change state only
   through its functions.
-- `MapLayout` holds every map position: the Central Plaza at the
-  origin, shop angles on its outer ring, and the ring of 6 player plots.
-  Angles are degrees clockwise from north (-Z). North is reserved for
-  the Dungeon Portal and Wilderness Gate.
+- `MapLayout` holds every map position: the sea, the Central Plaza at
+  the origin, shop angles on its outer ring, the ring of 6 player
+  islands, and the Dungeon Portal / Wilderness Gate islands to the
+  north. Angles are degrees clockwise from north (-Z).
+- `Islands` shapes the terrain (water, sea floor, an island under the
+  plaza and every other island) and removes the template Baseplate. It
+  runs first.
 - `Plots` generates plots at runtime in `workspace.Plots` and assigns
   one per player (`OwnerId` attribute on the plot). Front gardens face
-  the plaza.
-- `Plaza` builds `workspace.Plaza` (floor, 4 shop stalls, paths to each
-  plot) and handles shop prompts. Seed and Sell shops work; Gear and
+  the plaza. Houses, fences, and trees go in each plot's `Decor` folder.
+- `Plaza` builds `workspace.Plaza` (floor, fountain, lamps, 4 shop
+  stalls, a bridge to every island) and handles shop prompts. Seed and Sell shops work; Gear and
   Blueprint are placeholders.
 - `Farming` handles soil-tile prompts (plant, grow, harvest). The server
   always checks plot ownership.
-- `Build` has the shared part/prompt/sign helpers.
+- `Landmarks` builds the Dungeon Portal and Wilderness Gate islands
+  (decoration only for now).
+- `Build` has the shared part/prompt/sign/tree/lamp/fence helpers.
 - `src/shared/Crops.luau` is the single list of crops and their numbers.
 - Remotes live in `ReplicatedStorage.Remotes`, created by the server.
   Validate every remote argument on the server.
