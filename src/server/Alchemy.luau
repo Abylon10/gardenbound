@@ -17,7 +17,8 @@ local PlayerData = require(script.Parent.PlayerData)
 local Plots = require(script.Parent.Plots)
 local Remotes = require(script.Parent.Remotes)
 
-local BASE_WALK_SPEED = 16
+-- 10% faster than the Roblox default of 16.
+local BASE_WALK_SPEED = 17.6
 local MAX_CAULDRON_DISTANCE = 20
 
 local Alchemy = {}

@@ -31,8 +31,17 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   islands, and the Dungeon Portal / Wilderness Gate islands to the
   north. Angles are degrees clockwise from north (-Z).
 - `Islands` shapes the terrain (water, sea floor, an island under the
-  plaza and every other island) and removes the template Baseplate. It
-  runs first.
+  plaza and every other island, rocks in the sea) and removes the
+  template Baseplate. Island grass is at `GROUND_TOP` (15, too high to
+  jump up from the water); the plaza floor is `PLAZA_TOP`, on a ring of
+  steps. Never hard-code heights; use these.
+- `Atmosphere`: lighting, haze, color grading, water and terrain colors.
+- `Coast`: docks at the water with stairs up the cliffs
+  (`MapLayout.docks`, `Build.dock`).
+- `NPCs` (server) builds the townsfolk from `shared/NPCs` (names, jobs,
+  dialogue): R15 bodies from a HumanoidDescription plus code-built
+  accessories, a "Talk" prompt on F (`TalkNPC`); client `Dialog` shows
+  the lines.
 - `Plots` generates plots at runtime in `workspace.Plots` and assigns
   one per player (`OwnerId` attribute on the plot). Front gardens face
   the plaza. Houses, fences, and trees go in each plot's `Decor` folder.
@@ -73,7 +82,7 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   armor is a Bonuses source. Gear stats/recipes in `shared/Gear`.
 - `Alchemy`: Brew (at your plot's `Cauldron`) and UsePotion with
   per-potion cooldowns; timed buffs are a Bonuses source and multiply
-  WalkSpeed. Three potions (Health, Swiftness, Strength) in
+  WalkSpeed (base 17.6, 10% above the default). Three potions (Health, Swiftness, Strength) in
   `shared/Potions`.
 - `Travel`: TravelTo("Plaza" | "Garden") remote behind the client
   `TravelButtons`; plaza end / island end of the player's bridge.
@@ -97,7 +106,8 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   client may not have streamed yet without waiting for it.)
 - `src/first/LoadingScreen.client.luau` shows the loading screen and
   drives the steps above.
-- `Build` has the shared part/prompt/sign/tree/lamp/fence helpers.
+- `Build` has the shared part/prompt/sign/tree/pineTree/lamp/fence/
+  banner/bridge/dock helpers.
 - Shared definitions: `Crops`, `Items` (stackables), `Trees`,
   `Blueprints`, `ShopCatalog`. Balance numbers live there.
 - Client UI: `UI` helpers, `Toasts`, `ShopMenu`, `Inventory` (Bag, tabs

@@ -16,9 +16,15 @@ local function originOf(name: string): CFrame
 	return MapLayout.facingCenter(landmark.angle, landmark.radius)
 end
 
+-- Alternating round trees and pines.
 local function treesAround(parent: Instance, origin: CFrame, spots: { Vector3 })
-	for _, spot in spots do
-		Build.tree(parent, (origin * CFrame.new(spot.X, GROUND_TOP, spot.Z)).Position, 1)
+	for i, spot in spots do
+		local position = (origin * CFrame.new(spot.X, GROUND_TOP, spot.Z)).Position
+		if i % 2 == 0 then
+			Build.tree(parent, position, 1)
+		else
+			Build.pineTree(parent, position, 1.2)
+		end
 	end
 end
 
@@ -95,8 +101,30 @@ local function buildDungeonPortal(parent: Instance)
 	glow.Parent = gateway
 	gateway.Parent = portal
 
+	local swirl = Instance.new("ParticleEmitter")
+	swirl.Color = ColorSequence.new(Color3.fromRGB(200, 120, 255), Color3.fromRGB(90, 40, 200))
+	swirl.LightEmission = 1
+	swirl.Rate = 25
+	swirl.Lifetime = NumberRange.new(1, 2)
+	swirl.Speed = NumberRange.new(1, 3)
+	swirl.RotSpeed = NumberRange.new(90, 180)
+	swirl.Size = NumberSequence.new(1.2, 0)
+	swirl.Parent = gateway
+
+	-- Steps up to the platform, torches at the back corners, and purple
+	-- banners at the foot of the steps.
+	for i = 1, 3 do
+		Build.part({
+			Name = "Step",
+			Size = Vector3.new(30, 0.5 * (4 - i), 1.5),
+			CFrame = origin * CFrame.new(0, GROUND_TOP + 0.25 * (4 - i), -5 - (i - 0.5) * 1.5),
+			Color = STONE,
+			Material = Enum.Material.Slate,
+		}).Parent = portal
+	end
 	for _, x in { -14, 14 } do
-		torch(portal, (origin * CFrame.new(x, GROUND_TOP + 1.5, -3)).Position)
+		torch(portal, (origin * CFrame.new(x, GROUND_TOP + 1.5, 13)).Position)
+		Build.banner(portal, (origin * CFrame.new(x + (if x > 0 then 3 else -3), GROUND_TOP, -11)).Position, origin.LookVector, Color3.fromRGB(110, 60, 170))
 	end
 
 	treesAround(portal, origin, {
@@ -139,6 +167,9 @@ local function buildWildernessGate(parent: Instance)
 		Material = Enum.Material.Fabric,
 	}).Parent = gate
 	Build.sign(beam, "Wilderness Gate", "The Meadow lies beyond. Look for eggs!", 5)
+	for _, x in { -14, 14 } do
+		Build.banner(gate, (origin * CFrame.new(x, GROUND_TOP, 3)).Position, origin.LookVector, Color3.fromRGB(60, 140, 70))
+	end
 
 	treesAround(gate, origin, {
 		Vector3.new(-20, 0, 10),

@@ -1,6 +1,8 @@
 -- Server entry point. Each system is a ModuleScript next to this one.
 
+local Atmosphere = require(script.Atmosphere)
 local Islands = require(script.Islands)
+local Coast = require(script.Coast)
 local PlayerData = require(script.PlayerData)
 local Plots = require(script.Plots)
 local Farming = require(script.Farming)
@@ -20,9 +22,12 @@ local Dungeon = require(script.Dungeon)
 local Forge = require(script.Forge)
 local Alchemy = require(script.Alchemy)
 local Travel = require(script.Travel)
+local NPCs = require(script.NPCs)
 
 -- Terrain first, so everything else is built on finished islands.
+Atmosphere.start()
 Islands.start()
+Coast.start()
 Farming.start()
 PlayerData.start()
 Plots.start()
@@ -41,6 +46,7 @@ Dungeon.start()
 Forge.start()
 Alchemy.start()
 Travel.start()
+NPCs.start()
 -- Last: characters only spawn once the map and plots exist.
 Spawning.start()
 

@@ -97,6 +97,174 @@ function Build.tree(parent: Instance, position: Vector3, scale: number?, leafCol
 	return tree
 end
 
+-- A cone-shaped pine tree standing on the ground at position.
+function Build.pineTree(parent: Instance, position: Vector3, scale: number?): Model
+	local s = scale or 1
+	local tree = Instance.new("Model")
+	tree.Name = "PineTree"
+	Build.part({
+		Name = "Trunk",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(5 * s, 1.6 * s, 1.6 * s),
+		CFrame = CFrame.new(position + Vector3.new(0, 2.5 * s, 0)) * CFrame.Angles(0, 0, math.rad(90)),
+		Color = TRUNK,
+		Material = Enum.Material.Wood,
+	}).Parent = tree
+	-- Stacked, shrinking layers of needles.
+	for i = 0, 3 do
+		local width = (9 - i * 2) * s
+		Build.part({
+			Name = "Needles",
+			Size = Vector3.new(width, 3 * s, width),
+			CFrame = CFrame.new(position + Vector3.new(0, (4.5 + i * 2.6) * s, 0)) * CFrame.Angles(0, math.rad(45 * i), 0),
+			Color = Color3.fromRGB(40, 110, 60),
+			Material = Enum.Material.Grass,
+			CanCollide = false,
+		}).Parent = tree
+	end
+	tree.Parent = parent
+	return tree
+end
+
+-- A pole with a hanging cloth banner and a gold stripe, standing on the
+-- ground at position, the banner facing `facing` (a direction).
+function Build.banner(parent: Instance, position: Vector3, facing: Vector3, color: Color3): Model
+	local banner = Instance.new("Model")
+	banner.Name = "Banner"
+	local flat = Vector3.new(facing.X, 0, facing.Z)
+	local frame = CFrame.lookAt(position, position + (if flat.Magnitude > 0 then flat.Unit else Vector3.new(0, 0, -1)))
+	Build.part({
+		Name = "Pole",
+		Size = Vector3.new(0.6, 14, 0.6),
+		CFrame = frame * CFrame.new(0, 7, 0),
+		Color = Color3.fromRGB(60, 45, 35),
+		Material = Enum.Material.Wood,
+	}).Parent = banner
+	Build.part({
+		Name = "Crossbar",
+		Size = Vector3.new(3.6, 0.3, 0.3),
+		CFrame = frame * CFrame.new(0, 13.3, -0.4),
+		Color = Color3.fromRGB(200, 170, 70),
+		Material = Enum.Material.Metal,
+	}).Parent = banner
+	Build.part({
+		Name = "Cloth",
+		Size = Vector3.new(3.2, 6, 0.15),
+		CFrame = frame * CFrame.new(0, 10, -0.5),
+		Color = color,
+		Material = Enum.Material.Fabric,
+		CanCollide = false,
+	}).Parent = banner
+	Build.part({
+		Name = "Stripe",
+		Size = Vector3.new(3.2, 0.4, 0.2),
+		CFrame = frame * CFrame.new(0, 8, -0.5),
+		Color = Color3.fromRGB(230, 190, 70),
+		Material = Enum.Material.Fabric,
+		CanCollide = false,
+	}).Parent = banner
+	banner.Parent = parent
+	return banner
+end
+
+-- Stairs down an island cliff to a wooden dock at the water. The landing
+-- starts on the grass at `bearing` (degrees) from the island center and
+-- the stairs run along the outside of the cliff (`side` picks which way).
+function Build.dock(
+	parent: Instance,
+	name: string,
+	center: Vector3,
+	islandRadius: number,
+	bearing: number,
+	side: number,
+	groundTop: number,
+	waterLevel: number
+): Model
+	local dock = Instance.new("Model")
+	dock.Name = name
+	local radians = math.rad(bearing)
+	local out = Vector3.new(math.sin(radians), 0, -math.cos(radians))
+	local along = Vector3.new(-out.Z, 0, out.X) * side
+	local base = Vector3.new(center.X, 0, center.Z)
+	-- The cliff rock reaches islandRadius + 5; stairs run just outside it.
+	local stairLine = islandRadius + 9
+	local width = 8
+	local deckTop = waterLevel + 1.5
+	local stone = Color3.fromRGB(150, 140, 125)
+
+	local function block(partName: string, size: Vector3, position: Vector3, forward: Vector3, color: Color3, material: Enum.Material)
+		Build.part({
+			Name = partName,
+			Size = size,
+			CFrame = CFrame.lookAt(position, position + forward),
+			Color = color,
+			Material = material,
+		}).Parent = dock
+	end
+
+	-- Landing from the grass out over the cliff edge.
+	local landingStart = islandRadius - 4
+	local landingEnd = stairLine + width / 2
+	local landingLength = landingEnd - landingStart
+	block(
+		"Landing",
+		Vector3.new(width, 1, landingLength),
+		base + out * (landingStart + landingLength / 2) + Vector3.new(0, groundTop - 0.5, 0),
+		out,
+		stone,
+		Enum.Material.Cobblestone
+	)
+
+	-- Solid steps down to the dock.
+	local height = groundTop - deckTop
+	local steps = math.ceil(height)
+	local rise = height / steps
+	local run = 1.6
+	for i = 1, steps do
+		local top = groundTop - i * rise
+		local bottom = deckTop - 3
+		local offset = width / 2 + (i - 0.5) * run
+		block(
+			"Step",
+			Vector3.new(width, top - bottom, run + 0.1),
+			base + out * stairLine + along * offset + Vector3.new(0, (top + bottom) / 2, 0),
+			along,
+			stone,
+			Enum.Material.Cobblestone
+		)
+	end
+
+	-- Wooden dock at the bottom, and a pier out over the water.
+	local stairEnd = width / 2 + steps * run
+	local wood = Color3.fromRGB(140, 95, 60)
+	block(
+		"Deck",
+		Vector3.new(width + 4, 1, 12),
+		base + out * stairLine + along * (stairEnd + 6) + Vector3.new(0, deckTop - 0.5, 0),
+		along,
+		wood,
+		Enum.Material.WoodPlanks
+	)
+	local pierStart = base + out * (stairLine + width / 2 + 2) + along * (stairEnd + 6)
+	block("Pier", Vector3.new(6, 1, 18), pierStart + out * 9 + Vector3.new(0, deckTop - 0.5, 0), out, wood, Enum.Material.WoodPlanks)
+	for _, distance in { 4, 10, 16 } do
+		for _, sideOffset in { -2.7, 2.7 } do
+			local post = pierStart + out * distance + along * sideOffset
+			block(
+				"Post",
+				Vector3.new(0.8, 6, 0.8),
+				post + Vector3.new(0, deckTop - 2.5, 0),
+				out,
+				Color3.fromRGB(100, 70, 45),
+				Enum.Material.Wood
+			)
+		end
+	end
+
+	dock.Parent = parent
+	return dock
+end
+
 -- A lamp post standing on the ground at position, with a warm light.
 function Build.lamp(parent: Instance, position: Vector3): Model
 	local lamp = Instance.new("Model")

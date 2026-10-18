@@ -57,6 +57,11 @@ Abandoned Mine. Mine copper and iron veins and fight slimes and bats. Craft and 
 equip it from the Bag's Gear tab. Brew potions at the cauldron by your house
 and drink them from the Bag.
 
+Short grass: the animated grass blades on terrain can't be changed from a
+script. In Studio, select **Terrain** in the Explorer and, in Properties,
+turn off **Decoration** (or lower the grass length if your Studio shows
+that option). Save the place afterwards.
+
 Saving needs **Game Settings → Security → Enable Studio Access to API
 Services** turned on (and the place published). Without it the game
 still runs, it just doesn't save.
