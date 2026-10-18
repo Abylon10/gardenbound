@@ -22,15 +22,28 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   mirrors it to `leaderstats.Coins` and player attributes
   `Seed_<Crop>` / `Crop_<Crop>`. Other systems change state only
   through its functions.
+- `MapLayout` holds every map position: the Central Plaza at the
+  origin, shop angles on its outer ring, and the ring of 6 player plots.
+  Angles are degrees clockwise from north (-Z). North is reserved for
+  the Dungeon Portal and Wilderness Gate.
 - `Plots` generates plots at runtime in `workspace.Plots` and assigns
-  one per player (`OwnerId` attribute on the plot).
-- `Farming` handles all ProximityPrompts on plots (plant, harvest, buy,
-  sell). The server always checks plot ownership.
+  one per player (`OwnerId` attribute on the plot). Front gardens face
+  the plaza.
+- `Plaza` builds `workspace.Plaza` (floor, 4 shop stalls, paths to each
+  plot) and handles shop prompts. Seed and Sell shops work; Gear and
+  Blueprint are placeholders.
+- `Farming` handles soil-tile prompts (plant, grow, harvest). The server
+  always checks plot ownership.
+- `Build` has the shared part/prompt/sign helpers.
 - `src/shared/Crops.luau` is the single list of crops and their numbers.
 - Remotes live in `ReplicatedStorage.Remotes`, created by the server.
   Validate every remote argument on the server.
 
 ## Conventions
+- Map art (islands, water, bridges, real shop models) is planned to be
+  built in Studio; the code-built parts are placeholders. Keep gameplay
+  objects (prompts, tiles) findable by name so art can replace the rest.
+- Map reference: `docs/map-design.md`.
 - Tabs for indentation. Each module has a short header comment.
 - Prefer server-authoritative logic; the client only shows UI and sends
   requests.
