@@ -42,8 +42,13 @@ Each phase should be playable on its own before the next starts.
 - [x] Eggs are found in the world, not dropped: glowing eggs on spots
       beside trees, behind rocks, and in clearings; rarer further from the
       entrance and in hidden spots; respawn elsewhere after collection
-- [x] 10 pets (5 farm, 5 battle) in 4 rarities; hatch from the Bag, equip
-      one of each; equipped pets follow you and give bonuses
+- [x] Pets: Hen and Giant Earthworm (Common, farm), Dog and Cat
+      (Uncommon, battle), Butterfly (Rare, farm); hatch from the Bag with
+      a reveal, equip one of each; equipped pets follow you and give
+      bonuses
+- [x] Eggs in 5 tiers (Common, Uncommon, Rare, Epic, Special), each with
+      its own look; rarity by distance, hidden nooks for Epic/Special
+- [ ] Pets for Epic and Special eggs (to be designed)
 - [ ] Pet levels (later)
 
 ### Phase 4: Dungeon, forging, potions (done)

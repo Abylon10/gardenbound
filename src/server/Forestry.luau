@@ -1,6 +1,7 @@
 -- Back-garden trees. Plant the selected sapling on a tree spot, wait for
 -- it to grow (real time, saved per spot like crops), then chop it for
--- wood. Spots locked by house level are skipped.
+-- wood (plus apples or coconuts from fruit trees). Spots locked by house
+-- level are skipped.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -135,9 +136,14 @@ local function chop(player: Player, spot: BasePart)
 	data.trees[spot.Name] = nil
 	local wood = Forestry.woodAmount(player, tree.wood)
 	PlayerData.addItem(player, "Wood", wood)
+	local message = `+{wood} wood`
+	if tree.fruit and Items[tree.fruit.item] then
+		PlayerData.addItem(player, tree.fruit.item, tree.fruit.amount)
+		message ..= `, +{tree.fruit.amount} {Items[tree.fruit.item].displayName}`
+	end
 	getPrompt(spot).HoldDuration = 0
 	clearSpot(spot)
-	Notify.send(player, `+{wood} wood`, "success")
+	Notify.send(player, message, "success")
 end
 
 local function onPromptTriggered(prompt: ProximityPrompt, player: Player)

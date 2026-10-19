@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Pets = require(ReplicatedStorage.Shared.Pets)
 local Farming = require(script.Parent.Farming)
 local Forestry = require(script.Parent.Forestry)
+local Notify = require(script.Parent.Notify)
 local Plaza = require(script.Parent.Plaza)
 local PlayerData = require(script.Parent.PlayerData)
 
@@ -71,6 +72,12 @@ function Bonuses.start()
 	end
 	Farming.harvestAmount = function(player)
 		return if math.random() < Bonuses.get(player, "doubleHarvest") then 2 else 1
+	end
+	Farming.afterHarvest = function(player)
+		if math.random() < Bonuses.get(player, "eggFind") then
+			PlayerData.addItem(player, "CommonEgg", 1)
+			Notify.send(player, "Your Hen found a Common Egg!", "success")
+		end
 	end
 	Forestry.growthMultiplier = function(player)
 		return Bonuses.get(player, "treeGrowth")

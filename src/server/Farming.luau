@@ -32,6 +32,8 @@ end
 Farming.harvestAmount = function(_player: Player, _cropName: string): number
 	return 1
 end
+-- Called after every harvest, for bonus finds (the Hen's Egg Drop).
+Farming.afterHarvest = function(_player: Player, _cropName: string) end
 
 local nextPlantId = 0
 
@@ -122,6 +124,7 @@ local function harvest(player: Player, tile: BasePart)
 	data.garden[tile.Name] = nil
 	PlayerData.addCrop(player, cropName, Farming.harvestAmount(player, cropName))
 	clearTile(tile)
+	Farming.afterHarvest(player, cropName)
 end
 
 local function onTilePrompt(player: Player, tile: BasePart)

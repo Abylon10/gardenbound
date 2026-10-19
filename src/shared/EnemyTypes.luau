@@ -60,7 +60,7 @@ local EnemyTypes: { [string]: EnemyType } = {
 		speed = 9,
 		aggroRange = 28,
 		size = 5,
-		color = Color3.fromRGB(70, 170, 200),
+		color = Color3.fromRGB(150, 80, 220),
 		shape = "slime",
 		coins = 6,
 		drops = { SlimeGel = 0.8, SlimeCore = 0.25 },

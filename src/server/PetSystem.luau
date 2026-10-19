@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Items = require(ReplicatedStorage.Shared.Items)
 local Pets = require(ReplicatedStorage.Shared.Pets)
-local Notify = require(script.Parent.Notify)
+local PetModels = require(script.Parent.PetModels)
 local PlayerData = require(script.Parent.PlayerData)
 local Remotes = require(script.Parent.Remotes)
 
@@ -19,6 +19,8 @@ local FOLLOW_OFFSETS = {
 }
 
 local PetSystem = {}
+
+local hatchedRemote = Remotes.event("Hatched")
 
 local function rollPet(eggId: string): string?
 	local weights = Pets.eggs[eggId]
@@ -61,40 +63,27 @@ local function buildFollower(character: Model, kind: string, slot: string)
 		folder.Parent = character
 	end
 
+	-- Invisible root that the align constraints move; the visible parts
+	-- are welded to it (see PetModels).
 	local body = Instance.new("Part")
 	body.Name = "Pet_" .. slot
-	body.Shape = Enum.PartType.Ball
-	body.Size = Vector3.new(2, 2, 2)
-	body.Color = def.color
-	body.Material = Enum.Material.SmoothPlastic
+	body.Size = Vector3.new(1, 1, 1)
+	body.Transparency = 1
 	body.CanCollide = false
 	body.CanQuery = false
 	body.Massless = true
-	body.CFrame = root.CFrame * CFrame.new(FOLLOW_OFFSETS[slot])
-	for _, x in { -0.4, 0.4 } do
-		local eye = Instance.new("Part")
-		eye.Name = "Eye"
-		eye.Shape = Enum.PartType.Ball
-		eye.Size = Vector3.new(0.4, 0.4, 0.4)
-		eye.Color = Color3.fromRGB(20, 20, 20)
-		eye.CanCollide = false
-		eye.CanQuery = false
-		eye.Massless = true
-		eye.CFrame = body.CFrame * CFrame.new(x, 0.3, -0.85)
-		local weld = Instance.new("WeldConstraint")
-		weld.Part0 = body
-		weld.Part1 = eye
-		weld.Parent = eye
-		eye.Parent = body
-	end
+	local offset = FOLLOW_OFFSETS[slot] + Vector3.new(0, PetModels.HEIGHT[kind] or 0, 0)
+	body.CFrame = root.CFrame * CFrame.new(offset)
+	PetModels.build(body, kind, def.color)
 
 	local petAttachment = Instance.new("Attachment")
 	petAttachment.Parent = body
-	local anchor = root:FindFirstChild("PetSlot_" .. slot) :: Attachment?
+	local anchorName = `PetSlot_{slot}_{kind}`
+	local anchor = root:FindFirstChild(anchorName) :: Attachment?
 	if not anchor then
 		local created = Instance.new("Attachment")
-		created.Name = "PetSlot_" .. slot
-		created.Position = FOLLOW_OFFSETS[slot]
+		created.Name = anchorName
+		created.Position = offset
 		created.Parent = root
 		anchor = created
 	end
@@ -113,7 +102,7 @@ local function buildFollower(character: Model, kind: string, slot: string)
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Size = UDim2.fromOffset(90, 20)
-	billboard.StudsOffset = Vector3.new(0, 1.8, 0)
+	billboard.StudsOffset = Vector3.new(0, 2, 0)
 	billboard.MaxDistance = 50
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
@@ -169,8 +158,8 @@ local function hatch(player: Player, eggId: unknown)
 	table.insert(data.pets, { id = data.nextPetId, kind = kind })
 	data.nextPetId += 1
 	PlayerData.changed(player)
-	local def = Pets.list[kind]
-	Notify.send(player, `Hatched a {def.rarity} {def.displayName}! Equip it from the Pets tab.`, "success")
+	-- The client plays the hatch reveal and says what came out.
+	hatchedRemote:FireClient(player, eggId, kind)
 end
 
 local function equip(player: Player, petId: unknown)
