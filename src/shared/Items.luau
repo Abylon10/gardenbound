@@ -4,11 +4,12 @@
 
 export type Item = {
 	displayName: string,
-	-- "material" | "sapling" | "egg" | "potion"
+	-- "material" | "sapling" | "fruit" | "egg" | "potion"
 	kind: string,
 	color: Color3,
 	description: string,
 	order: number,
+	sellPrice: number?, -- coins at the Sell Shop (fruit)
 }
 
 local Items: { [string]: Item } = {
@@ -108,27 +109,59 @@ local Items: { [string]: Item } = {
 		order = 38,
 	},
 
+	-- Fruit (from Apple and Coconut trees; sold at the Sell Shop)
+	Apple = {
+		displayName = "Apple",
+		kind = "fruit",
+		color = Color3.fromRGB(220, 40, 40),
+		description = "From Apple trees. Sell it at the Sell Shop.",
+		order = 25,
+		sellPrice = 8,
+	},
+	Coconut = {
+		displayName = "Coconut",
+		kind = "fruit",
+		color = Color3.fromRGB(130, 90, 50),
+		description = "From Coconut trees. Sell it at the Sell Shop.",
+		order = 26,
+		sellPrice = 20,
+	},
+
 	-- Eggs (found in the wilderness, hatch from the Bag)
 	CommonEgg = {
 		displayName = "Common Egg",
 		kind = "egg",
-		color = Color3.fromRGB(240, 235, 215),
-		description = "Found near the Meadow entrance. Hatch it from your Bag.",
+		color = Color3.fromRGB(240, 235, 205),
+		description = "Basic. Found near the wilderness entrance.",
 		order = 40,
 	},
-	ForestEgg = {
-		displayName = "Forest Egg",
+	UncommonEgg = {
+		displayName = "Uncommon Egg",
 		kind = "egg",
-		color = Color3.fromRGB(110, 190, 110),
-		description = "Found deeper in the Meadow. Better pets inside.",
+		color = Color3.fromRGB(60, 140, 230),
+		description = "Rare. Found in the forest interior.",
 		order = 41,
 	},
-	AncientEgg = {
-		displayName = "Ancient Egg",
+	RareEgg = {
+		displayName = "Rare Egg",
 		kind = "egg",
-		color = Color3.fromRGB(190, 120, 255),
-		description = "Found far from the entrance or in hidden spots. The best pets.",
+		color = Color3.fromRGB(140, 70, 220),
+		description = "Very rare. Found deep in the wilderness.",
 		order = 42,
+	},
+	EpicEgg = {
+		displayName = "Epic Egg",
+		kind = "egg",
+		color = Color3.fromRGB(70, 45, 40),
+		description = "Legendary. Found on the dangerous frontier and in hidden areas.",
+		order = 43,
+	},
+	SpecialEgg = {
+		displayName = "Special Egg",
+		kind = "egg",
+		color = Color3.fromRGB(230, 200, 255),
+		description = "Mythic. Found only in hidden areas.",
+		order = 44,
 	},
 
 	-- Potions (brew at your cauldron, use from the Bag)

@@ -89,6 +89,22 @@ local function defaultData(): Data
 	}
 end
 
+-- Renames for items that changed between versions.
+local RENAMED_ITEMS = {
+	ForestEgg = "UncommonEgg",
+	AncientEgg = "RareEgg",
+}
+
+local function migrate(data: Data)
+	for oldId, newId in RENAMED_ITEMS do
+		local count = data.items[oldId]
+		if count and count > 0 then
+			data.items[newId] = (data.items[newId] or 0) + count
+		end
+		data.items[oldId] = nil
+	end
+end
+
 local function sync(player: Player)
 	local profile = profiles[player]
 	if not profile then
@@ -127,6 +143,7 @@ local function load(player: Player)
 				for key, value in result do
 					(data :: any)[key] = value
 				end
+				migrate(data)
 			end
 		else
 			-- Don't overwrite real progress with defaults after a failed load.

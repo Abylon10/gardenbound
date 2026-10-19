@@ -8,6 +8,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Crops = require(ReplicatedStorage.Shared.Crops)
+local Items = require(ReplicatedStorage.Shared.Items)
 local Build = require(script.Parent.Build)
 local MapLayout = require(script.Parent.MapLayout)
 local Notify = require(script.Parent.Notify)
@@ -27,7 +28,7 @@ type ShopInfo = {
 
 local SHOPS: { ShopInfo } = {
 	{ key = "SeedShop", displayName = "Seed Shop", subtitle = "Seeds for your garden", color = Color3.fromRGB(70, 160, 80) },
-	{ key = "SellShop", displayName = "Sell Shop", subtitle = "Sell your crops", color = Color3.fromRGB(200, 60, 50) },
+	{ key = "SellShop", displayName = "Sell Shop", subtitle = "Sell your crops and fruit", color = Color3.fromRGB(200, 60, 50) },
 	{ key = "GearShop", displayName = "Gear Shop", subtitle = "Forge and upgrade gear", color = Color3.fromRGB(60, 100, 200) },
 	{ key = "BlueprintShop", displayName = "Blueprint Shop", subtitle = "House upgrades and decorations", color = Color3.fromRGB(130, 80, 190) },
 }
@@ -151,7 +152,7 @@ local function buildStall(shop: ShopInfo, origin: CFrame): Model
 	-- Shops with a menu get an "OpenShop" prompt; the client opens the menu.
 	-- The Gear Shop opens the Forge menu instead.
 	if shop.key == "SellShop" then
-		Build.prompt(counter, "Sell all crops", "Sell Shop").Name = "Sell"
+		Build.prompt(counter, "Sell crops and fruit", "Sell Shop").Name = "Sell"
 	elseif shop.key == "GearShop" then
 		Build.prompt(counter, "Forge", "Gear Shop").Name = "OpenForge"
 	else
@@ -351,6 +352,7 @@ Plaza.sellMultiplier = function(_player: Player): number
 	return 1
 end
 
+-- Sells every harvested crop and every fruit (apples, coconuts).
 local function sellAll(player: Player)
 	local sold = PlayerData.takeAllCrops(player)
 	local total = 0
@@ -360,12 +362,19 @@ local function sellAll(player: Player)
 			total += crop.sellPrice * count
 		end
 	end
-	total = math.floor(total * Plaza.sellMultiplier(player) + 0.5)
+	total = total * Plaza.sellMultiplier(player)
+	for itemId, item in Items do
+		local count = PlayerData.getItem(player, itemId)
+		if item.kind == "fruit" and item.sellPrice and count > 0 and PlayerData.takeItem(player, itemId, count) then
+			total += item.sellPrice * count
+		end
+	end
+	total = math.floor(total + 0.5)
 	if total > 0 then
 		PlayerData.addCoins(player, total)
-		Notify.send(player, `Sold crops for {total} coins`, "success")
+		Notify.send(player, `Sold for {total} coins`, "success")
 	else
-		Notify.send(player, "You have no crops to sell. Harvest some first!", "error")
+		Notify.send(player, "You have nothing to sell. Harvest crops or chop fruit trees first!", "error")
 	end
 end
 

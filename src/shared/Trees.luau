@@ -1,5 +1,6 @@
 -- Trees for the back garden. Plant a sapling, wait growTime seconds, then
--- chop it for wood. Saplings are bought at the Seed Shop.
+-- chop it for wood (Apple and Coconut trees also drop fruit). Saplings are
+-- bought at the Seed Shop.
 
 export type Tree = {
 	displayName: string,
@@ -7,6 +8,7 @@ export type Tree = {
 	saplingPrice: number,
 	growTime: number,
 	wood: number,
+	fruit: { item: string, amount: number }?, -- extra drop when chopped
 	leafColor: Color3,
 	order: number,
 }
@@ -27,6 +29,7 @@ local Trees: { [string]: Tree } = {
 		saplingPrice = 35,
 		growTime = 150,
 		wood = 12,
+		fruit = { item = "Apple", amount = 3 },
 		leafColor = Color3.fromRGB(70, 150, 60),
 		order = 2,
 	},
@@ -36,6 +39,7 @@ local Trees: { [string]: Tree } = {
 		saplingPrice = 90,
 		growTime = 360,
 		wood = 30,
+		fruit = { item = "Coconut", amount = 2 },
 		leafColor = Color3.fromRGB(110, 170, 50),
 		order = 3,
 	},

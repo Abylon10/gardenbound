@@ -67,13 +67,17 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - `Combat`: gives the equipped weapon as a Tool, swings hit enemies in
   front, kill rewards (coins + drops), max health from bonuses.
 - `PetSystem`: HatchEgg/EquipPet remotes, follower pets on the
-  character, publishes `Pets`/`EquippedPets` JSON. Defs in `shared/Pets`.
+  character (shapes in `PetModels`), fires `Hatched` for the client
+  reveal, publishes `Pets`/`EquippedPets` JSON. Defs, egg tables, and
+  rarity colors in `shared/Pets`.
 - `Wilderness`: the Meadow zone island beyond the Wilderness Gate
   (`MapLayout.ZONES`), its bridge, its enemy zone (slimes, goblins), and
   its egg spots.
 - `EggSpawns`: eggs are world collectibles, never monster drops. Each
-  area keeps a few glowing eggs on spots; rarity by distance from the
-  entrance, hidden spots one band better; respawn elsewhere after pickup.
+  area keeps a few glowing eggs on spots (clearings, near trees, behind
+  rocks, along paths, hidden nooks); rarity by distance from the
+  entrance (Common → Rare/Epic), hidden nooks Epic/Special; each tier
+  has its own look; respawn elsewhere after pickup.
 - `Dungeon`: the Abandoned Mine at (1600, -300, 0), Persistent; four
   rooms with enemy zones (slimes, bats) and ore veins (`MineVein` prompts), entered
   from the Dungeon Portal (`EnterMine`), exit portal `LeaveMine`.

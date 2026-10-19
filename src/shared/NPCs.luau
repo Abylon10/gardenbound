@@ -19,7 +19,7 @@ local NPCs: { [string]: NPC } = {
 			"Carrots are perfect for beginners. They're ready in just 20 seconds!",
 			"Chillies take the longest to grow, but they sell for the most coins.",
 			"Saplings go in your back garden. Birch grows fastest, Coconut gives the most wood.",
-			"Tip: a Bee pet makes your crops grow faster. I love bees!",
+			"Tip: a Giant Earthworm pet enriches the soil so your crops grow faster!",
 		},
 	},
 	Diane = {
@@ -30,7 +30,7 @@ local NPCs: { [string]: NPC } = {
 			"Good day. I'm Diane, purveyor of the island's finest produce.",
 			"Bring me your harvest and I'll pay a fair price. Every crop at once, no haggling.",
 			"Chillies and cabbages fetch the best prices this season.",
-			"A Butterfly pet charms my customers. They pay twenty percent more for your crops.",
+			"Apples and coconuts from your back garden sell well too. Bring them along.",
 			"Remember, darling: coins invested in better seeds grow faster than any crop.",
 		},
 	},
@@ -65,7 +65,8 @@ local NPCs: { [string]: NPC } = {
 		lines = {
 			"Halt! Oh, just a farmer. I'm Kevin, scout of the Wilderness Gate.",
 			"Through my spyglass I've spotted glowing eggs all over the Meadow.",
-			"The further you go from the entrance, the rarer the eggs. Check behind rocks!",
+			"The further you go from the entrance, the rarer the eggs. Follow the path, check behind rocks.",
+			"Rumor has it hidden nooks near the far edge hold Epic and even Special eggs.",
 			"Slimes are easy. Goblins hit harder, but they drop fangs and rough hide.",
 		},
 	},
