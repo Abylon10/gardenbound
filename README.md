@@ -57,6 +57,32 @@ Abandoned Mine. Mine copper and iron veins and fight slimes and bats. Craft and 
 equip it from the Bag's Gear tab. Brew potions at the cauldron by your house
 and drink them from the Bag.
 
+## Editing the map in Studio
+
+The world is built by the scripts when the game starts, so in edit mode
+Studio is empty. To get the map into the place so you can see and edit it:
+
+1. Make sure the game is **not** running, and Rojo is connected.
+2. Open **View > Command Bar** and run:
+   ```
+   require(game.ServerScriptService.Server.World).bake()
+   ```
+3. Save the place (**File > Save to Roblox**).
+
+Now the islands, plaza, shops, plots, docks, landmarks, Meadow, mine, and
+NPCs are real parts in the Explorer. Move, recolor, delete, or replace
+anything and save. The game uses your saved version; anything you delete
+is rebuilt by code when the game starts. Egg spots in the Meadow are
+invisible `EggSpot` parts (in `Wilderness > Meadow > EggSpots`) that you can
+move; `Hidden` ones hold Epic/Special eggs. Houses are still rebuilt by
+code (they change when you upgrade).
+
+When an update changes the map's code, your baked map won't change
+automatically. Either re-bake (this replaces your edits) or ask for the
+change to be made by hand. To go back to the code's version:
+`require(game.ServerScriptService.Server.World).clear()` (also erases all
+terrain), then bake again.
+
 Short grass: the animated grass blades on terrain can't be changed from a
 script. In Studio, select **Terrain** in the Explorer and, in Properties,
 turn off **Decoration** (or lower the grass length if your Studio shows

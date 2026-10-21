@@ -387,8 +387,18 @@ local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	end
 end
 
-function Plaza.start()
+function Plaza.build()
 	buildPlaza()
+end
+
+-- Uses the plaza saved in the place if there is one.
+function Plaza.start()
+	local existing = workspace:FindFirstChild("Plaza")
+	if existing then
+		plaza = existing :: Model
+	else
+		buildPlaza()
+	end
 	ProximityPromptService.PromptTriggered:Connect(onPromptTriggered)
 end
 

@@ -327,13 +327,27 @@ function Plots.findPlot(instance: Instance): Model?
 	return current :: Model?
 end
 
-function Plots.start()
+function Plots.build()
 	plotsFolder = Instance.new("Folder")
 	plotsFolder.Name = "Plots"
 	plotsFolder.Parent = workspace
 
 	for i, angle in MapLayout.PLOT_ANGLES do
 		buildPlot(i, MapLayout.facingCenter(angle, MapLayout.PLOT_RING_RADIUS)):SetAttribute("Angle", angle)
+	end
+end
+
+-- Uses the plots saved in the place if there are any (every plot starts
+-- empty), otherwise builds them.
+function Plots.start()
+	local existing = workspace:FindFirstChild("Plots")
+	if existing then
+		plotsFolder = existing :: Folder
+		for _, plot in plotsFolder:GetChildren() do
+			setOwner(plot :: Model, nil)
+		end
+	else
+		Plots.build()
 	end
 
 	Players.PlayerAdded:Connect(claimPlot)

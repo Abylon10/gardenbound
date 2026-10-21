@@ -509,7 +509,7 @@ local function spawnNPC(parent: Instance, id: string, ground: CFrame)
 	model.Parent = parent
 end
 
-function NPCs.start()
+function NPCs.build()
 	local folder = Instance.new("Model")
 	folder.Name = "NPCs"
 	folder.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
@@ -520,19 +520,26 @@ function NPCs.start()
 	local shopkeepers = { SeedShop = "Louisa", SellShop = "Diane", GearShop = "Arthur", BlueprintShop = "Gary" }
 	for shop, id in shopkeepers do
 		local origin = MapLayout.facingCenter(MapLayout.SHOP_ANGLES[shop], MapLayout.SHOP_RING_RADIUS)
-		task.spawn(spawnNPC, folder, id, origin * CFrame.new(0, floorTop, 1.5))
+		spawnNPC(folder, id, origin * CFrame.new(0, floorTop, 1.5))
 	end
 
 	-- Scouts in front of the Wilderness Gate, knights on the portal steps.
 	local gate = MapLayout.LANDMARKS.WildernessGate
 	local gateOrigin = MapLayout.facingCenter(gate.angle, gate.radius)
-	task.spawn(spawnNPC, folder, "Kevin", gateOrigin * CFrame.new(-12, MapLayout.GROUND_TOP, -5))
-	task.spawn(spawnNPC, folder, "Josh", gateOrigin * CFrame.new(12, MapLayout.GROUND_TOP, -5))
+	spawnNPC(folder, "Kevin", gateOrigin * CFrame.new(-12, MapLayout.GROUND_TOP, -5))
+	spawnNPC(folder, "Josh", gateOrigin * CFrame.new(12, MapLayout.GROUND_TOP, -5))
 
 	local portal = MapLayout.LANDMARKS.DungeonPortal
 	local portalOrigin = MapLayout.facingCenter(portal.angle, portal.radius)
-	task.spawn(spawnNPC, folder, "Alfred", portalOrigin * CFrame.new(-11.5, MapLayout.GROUND_TOP + 1.5, -2))
-	task.spawn(spawnNPC, folder, "Susan", portalOrigin * CFrame.new(11.5, MapLayout.GROUND_TOP + 1.5, -2))
+	spawnNPC(folder, "Alfred", portalOrigin * CFrame.new(-11.5, MapLayout.GROUND_TOP + 1.5, -2))
+	spawnNPC(folder, "Susan", portalOrigin * CFrame.new(11.5, MapLayout.GROUND_TOP + 1.5, -2))
+end
+
+-- Uses the NPCs saved in the place if there are any.
+function NPCs.start()
+	if not workspace:FindFirstChild("NPCs") then
+		task.spawn(NPCs.build)
+	end
 end
 
 return NPCs
