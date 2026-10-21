@@ -182,12 +182,19 @@ local function buildWildernessGate(parent: Instance)
 	gate.Parent = parent
 end
 
-function Landmarks.start()
+function Landmarks.build()
 	local folder = Instance.new("Folder")
 	folder.Name = "Landmarks"
 	buildDungeonPortal(folder)
 	buildWildernessGate(folder)
 	folder.Parent = workspace
+end
+
+-- Uses the landmarks saved in the place if there are any.
+function Landmarks.start()
+	if not workspace:FindFirstChild("Landmarks") then
+		Landmarks.build()
+	end
 end
 
 return Landmarks

@@ -86,7 +86,9 @@ local function addSeaStacks(terrain: Terrain)
 	end
 end
 
-function Islands.start()
+-- Fills the terrain. Run once in edit mode by World.bake, or at runtime
+-- when the place has no baked map.
+function Islands.build()
 	local baseplate = workspace:FindFirstChild("Baseplate")
 	if baseplate then
 		baseplate:Destroy()
@@ -115,6 +117,14 @@ function Islands.start()
 		fillIsland(terrain, MapLayout.pointAt(zone.angle, zone.radius), zone.islandRadius)
 	end
 	addSeaStacks(terrain)
+end
+
+-- Skipped when the map was baked into the place (World.bake), so edits
+-- made to the terrain in Studio are kept.
+function Islands.start()
+	if workspace:GetAttribute("GardenboundBaked") ~= true then
+		Islands.build()
+	end
 end
 
 return Islands

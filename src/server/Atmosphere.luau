@@ -18,7 +18,7 @@ local function replace(className: string, name: string): Instance
 	return instance
 end
 
-function Atmosphere.start()
+function Atmosphere.build()
 	Lighting.ClockTime = 14
 	Lighting.Brightness = 2.6
 	Lighting.Ambient = Color3.fromRGB(95, 100, 115)
@@ -66,6 +66,14 @@ function Atmosphere.start()
 	terrain:SetMaterialColor(Enum.Material.Sand, Color3.fromRGB(225, 205, 155))
 	-- Grass blade length can't be set from a script; it's a Studio setting
 	-- on Terrain (Decoration / grass length). See README.
+end
+
+-- Skipped when the map was baked (World.bake), so lighting changes made
+-- in Studio are kept.
+function Atmosphere.start()
+	if workspace:GetAttribute("GardenboundBaked") ~= true then
+		Atmosphere.build()
+	end
 end
 
 return Atmosphere

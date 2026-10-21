@@ -6,7 +6,7 @@ local MapLayout = require(script.Parent.MapLayout)
 
 local Coast = {}
 
-function Coast.start()
+function Coast.build()
 	local docks = Instance.new("Model")
 	docks.Name = "Docks"
 	-- Always loaded, so the stairs are there wherever a player swims to.
@@ -24,6 +24,13 @@ function Coast.start()
 		)
 	end
 	docks.Parent = workspace
+end
+
+-- Uses the docks saved in the place if there are any.
+function Coast.start()
+	if not workspace:FindFirstChild("Docks") then
+		Coast.build()
+	end
 end
 
 return Coast

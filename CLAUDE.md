@@ -17,6 +17,17 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
 - Local copy: `C:\Users\Pc\Documents\gardenbound`. Workflow there:
   `git pull`, `rojo serve`, then Rojo → Connect in Studio.
 
+## Baked map
+The static world can be baked into the place file (`World.bake()` from the
+Studio Command Bar; see README). Each world module has `build()` (makes
+the static parts; safe in edit mode) and `start()` (runtime: uses the
+saved model if present, else calls `build()`, then sets up gameplay).
+Terrain and lighting are skipped at runtime when the workspace has the
+`GardenboundBaked` attribute. Never put runtime state in `build()`
+(no players, enemies, remotes, or signal connections), and find things
+in baked models by name, since Justin Dave may edit them in Studio.
+Map code changes don't reach an existing bake; say so when shipping one.
+
 ## Code layout
 - `src/server/init.server.luau` starts each system module in order.
 - `PlayerData` owns all saved player state (see the `Data` type) and
@@ -72,7 +83,8 @@ Design and phase plan: `docs/ROADMAP.md` (from the game proposal).
   rarity colors in `shared/Pets`.
 - `Wilderness`: the Meadow zone island beyond the Wilderness Gate
   (`MapLayout.ZONES`), its bridge, its enemy zone (slimes, goblins), and
-  its egg spots.
+  its egg spots (invisible `EggSpot` markers with a `Hidden` attribute).
+- `World`: `bake()` / `clear()` for the baked map.
 - `EggSpawns`: eggs are world collectibles, never monster drops. Each
   area keeps a few glowing eggs on spots (clearings, near trees, behind
   rocks, along paths, hidden nooks); rarity by distance from the

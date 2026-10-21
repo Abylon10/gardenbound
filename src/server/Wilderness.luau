@@ -166,19 +166,62 @@ local function buildMeadow(parent: Instance)
 		table.insert(spots, { position = nook, hidden = true })
 	end
 
+	-- Egg spots are saved as invisible markers, so they can be moved in
+	-- Studio after baking. "Hidden" marks the hidden-nook spots.
+	local eggSpots = Instance.new("Folder")
+	eggSpots.Name = "EggSpots"
+	eggSpots.Parent = meadow
+	for _, spot in spots do
+		local marker = Build.part({
+			Name = "EggSpot",
+			Size = Vector3.new(1, 1, 1),
+			CFrame = CFrame.new(spot.position + Vector3.new(0, 0.5, 0)),
+			Transparency = 1,
+			CanCollide = false,
+			CanQuery = false,
+			CanTouch = false,
+		})
+		marker:SetAttribute("Hidden", spot.hidden)
+		marker.Parent = eggSpots
+	end
+
 	meadow.Parent = parent
+end
+
+function Wilderness.build()
+	local folder = Instance.new("Folder")
+	folder.Name = "Wilderness"
+	folder.Parent = workspace
+	buildMeadow(folder)
+end
+
+-- Uses the Meadow saved in the place if there is one, then starts its
+-- enemies and egg spawns from its EggSpot markers.
+function Wilderness.start()
+	if not workspace:FindFirstChild("Wilderness") then
+		Wilderness.build()
+	end
+	local meadow = (workspace :: any).Wilderness:WaitForChild("Meadow") :: Model
+	local zone = MapLayout.ZONES.Meadow
+	local center = MapLayout.pointAt(zone.angle, zone.radius)
+	local entrance = MapLayout.pointAt(zone.angle, zone.radius - zone.islandRadius + 12)
+
+	local spots: { EggSpawns.Spot } = {}
+	local markers = meadow:FindFirstChild("EggSpots")
+	for _, marker in (if markers then markers:GetChildren() else {}) do
+		if marker:IsA("BasePart") then
+			table.insert(spots, {
+				position = marker.Position - Vector3.new(0, marker.Size.Y / 2, 0),
+				hidden = marker:GetAttribute("Hidden") == true,
+			})
+		end
+	end
+
 	Enemies.registerZone("Meadow", center, zone.islandRadius - 12, GROUND_TOP, {
 		Slime = 12,
 		Goblin = 6,
 	})
 	EggSpawns.registerArea("Meadow", meadow, entrance, zone.islandRadius * 2, spots)
-end
-
-function Wilderness.start()
-	local folder = Instance.new("Folder")
-	folder.Name = "Wilderness"
-	folder.Parent = workspace
-	buildMeadow(folder)
 end
 
 return Wilderness

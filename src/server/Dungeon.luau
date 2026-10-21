@@ -206,9 +206,6 @@ local function buildRoom(parent: Instance, room: Room, index: number)
 	Build.sign(signAnchor, room.name:gsub("(%l)(%u)", "%1 %2"), nil, 0)
 	signAnchor.Parent = folder
 
-	if room.population then
-		Enemies.registerZone(room.name, ORIGIN + Vector3.new(cx, 0, 0), half - 5, ORIGIN.Y, room.population)
-	end
 end
 
 local function buildTunnel(parent: Instance, fromX: number, toX: number)
@@ -264,12 +261,6 @@ local function buildMine()
 	Build.prompt(portal, "Leave the mine", "Exit Portal").Name = "LeaveMine"
 	portal.Parent = mine
 
-	-- Players arrive facing into the mine (+X).
-	entranceCFrame = CFrame.lookAt(
-		ORIGIN + Vector3.new(entrance.x - entrance.size / 2 + 6, 4, 0),
-		ORIGIN + Vector3.new(entrance.x + 10, 4, 0)
-	)
-
 	mine.Parent = workspace
 end
 
@@ -324,15 +315,46 @@ local function onPromptTriggered(prompt: ProximityPrompt, player: Player)
 	end
 end
 
-function Dungeon.start()
-	buildMine()
-
-	-- Make the Dungeon Portal's gateway an entrance.
+-- Makes the Dungeon Portal's gateway an entrance (once).
+local function addEntrancePrompt()
 	local landmarks = workspace:WaitForChild("Landmarks")
 	local gateway = landmarks:WaitForChild("DungeonPortal"):WaitForChild("Gateway") :: BasePart
+	if gateway:FindFirstChild("EnterMine") then
+		return
+	end
 	local enter = Build.prompt(gateway, "Enter the Abandoned Mine", "Dungeon Portal")
 	enter.Name = "EnterMine"
 	enter.MaxActivationDistance = 14
+end
+
+-- Builds the mine and the portal prompt (needs Landmarks built first).
+function Dungeon.build()
+	buildMine()
+	addEntrancePrompt()
+end
+
+-- Uses the mine saved in the place if there is one, then sets up its
+-- enemies and prompts.
+function Dungeon.start()
+	local existing = workspace:FindFirstChild("AbandonedMine")
+	if existing then
+		mine = existing :: Model
+	else
+		buildMine()
+	end
+	addEntrancePrompt()
+
+	local entrance = ROOMS[1]
+	-- Players arrive facing into the mine (+X).
+	entranceCFrame = CFrame.lookAt(
+		ORIGIN + Vector3.new(entrance.x - entrance.size / 2 + 6, 4, 0),
+		ORIGIN + Vector3.new(entrance.x + 10, 4, 0)
+	)
+	for _, room in ROOMS do
+		if room.population then
+			Enemies.registerZone(room.name, ORIGIN + Vector3.new(room.x, 0, 0), room.size / 2 - 5, ORIGIN.Y, room.population)
+		end
+	end
 
 	ProximityPromptService.PromptTriggered:Connect(onPromptTriggered)
 end
